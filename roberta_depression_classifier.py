@@ -1,20 +1,29 @@
-from pathlib import Path
+# from pathlib import Path
+import pandas as pd
 
-def read_imdb_split(split_dir):
-    split_dir = Path(split_dir)
+# read 2 csvs using pandas (one pos, one neg)
+# combine them to create text and label splits
+def read_csv_split(split_dir):
+    df_neg = pd.read_csv(split_dir)
+    df_pos = pd.read_csv(split_dir)
+    # df_pos = pd.read_csv('/positive_tweets.csv')
     texts = []
     labels = []
-    for label_dir in ["pos", "neg"]:
-        for text_file in (split_dir/label_dir).iterdir():
-            texts.append(text_file.read_text())
-            labels.append(0 if label_dir is "neg" else 1)
+    for df in [df_neg, df_pos]:
+        for tweet in df['tweet']:
+            texts.append(tweet)
+            labels.append(0 if df is df_neg else 1)
 
     return texts, labels
 
-train_texts, train_labels = read_imdb_split('aclImdb/train')
-test_texts, test_labels = read_imdb_split('aclImdb/test')
+train_texts, train_labels = read_csv_split('negative_tweets.csv')
 
 from sklearn.model_selection import train_test_split
+
+# use sklearn to split into train and test sets
+train_texts, test_texts, train_labels, test_labels = train_test_split(train_texts, train_labels, test_size=.2)
+
+# split train data into train and validation sets (if we want)
 train_texts, val_texts, train_labels, val_labels = train_test_split(train_texts, train_labels, test_size=.2)
 
 from transformers import DistilBertTokenizerFast
@@ -62,7 +71,7 @@ training_args = TrainingArguments(
 model = DistilBertForSequenceClassification.from_pretrained("distilbert-base-uncased")
 
 trainer = Trainer(
-    model=model,                         # the instantiated 🤗 Transformers model to be trained
+    model=model,                         # the instantiated  Transformers model to be trained
     args=training_args,                  # training arguments, defined above
     train_dataset=train_dataset,         # training dataset
     eval_dataset=val_dataset             # evaluation dataset

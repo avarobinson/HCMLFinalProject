@@ -4,15 +4,13 @@ import pandas as pd
 # read 2 csvs using pandas (one pos, one neg)
 # combine them to create text and label splits
 def read_csv_split(split_dir):
-    df_neg = pd.read_csv(split_dir)
-    df_pos = pd.read_csv(split_dir)
-    # df_pos = pd.read_csv('/positive_tweets.csv')
+    df = pd.read_csv(split_dir)
     texts = []
     labels = []
-    for df in [df_neg, df_pos]:
-        for tweet in df['tweet']:
-            texts.append(tweet)
-            labels.append(0 if df is df_neg else 1)
+    # this may change slightly depending on what the dataset looks like
+    for tweet, label in df['tweet', 'label']:
+        texts.append(tweet)
+        labels.append(label)
 
     return texts, labels
 

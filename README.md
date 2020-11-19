@@ -2,15 +2,25 @@
 detecting depression via twitter
 
 To start virtual environment: 
-  1. cd into depression-detector, then cd into api 
+  1. $ cd depression-detector
+  2. $ cd api 
   2. $ source venv/bin/activate
   
+To get dependencies: 
+  1. $ cd depression-detector
+  2. $ npm install  
+  3. $ pip install -r requirements.txt 
+  
 To start frontend: 
-  1. Once you are in the depression-detector directory --> $ yarn start 
-  2. Open up browser window and paste http://localhost:3000. 
+  1. cd depression-detector
+  2. $ yarn start 
+  3. open up browser window and paste http://localhost:3000. 
   
 To start backend: 
-  1. Switch to a second terminal --> $ yarn start-api
+  1. switch to a second terminal
+  2. $ yarn start-api
+  
+  
   
   
   

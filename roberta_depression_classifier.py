@@ -1,5 +1,23 @@
 # from pathlib import Path
 import pandas as pd
+from sklearn.model_selection import train_test_split
+from transformers import RobertaTokenizer, RobertaForSequenceClassification, Trainer, TrainingArguments
+import torch
+
+
+class DepressionDataset(torch.utils.data.Dataset):
+    def __init__(self, encodings, labels):
+        self.encodings = encodings
+        self.labels = labels
+
+    def __getitem__(self, idx):
+        item = {key: torch.tensor(val[idx]) for key, val in self.encodings.items()}
+        item['labels'] = torch.tensor(self.labels[idx])
+        return item
+
+    def __len__(self):
+        return len(self.labels)
+
 
 # read 2 csvs using pandas (one pos, one neg)
 # combine them to create text and label splits
@@ -14,95 +32,84 @@ def read_csv_split(split_dir):
 
     return texts, labels
 
-train_texts, train_labels = read_csv_split('negative_tweets.csv')
 
-from sklearn.model_selection import train_test_split
+def encode_data():    
+    train_texts, train_labels = read_csv_split('negative_tweets.csv')
 
-# use sklearn to split into train and test sets
-train_texts, test_texts, train_labels, test_labels = train_test_split(train_texts, train_labels, test_size=.2)
+    # # use sklearn to split into train and test sets
+    # train_texts, test_texts, train_labels, test_labels = train_test_split(train_texts, train_labels, test_size=.2)
 
-# split train data into train and validation sets (if we want)
-train_texts, val_texts, train_labels, val_labels = train_test_split(train_texts, train_labels, test_size=.2)
+    # split train data into train and validation sets (if we want)
+    train_texts, val_texts, train_labels, val_labels = train_test_split(train_texts, train_labels, test_size=.2)
 
-from transformers import DistilBertTokenizerFast
-tokenizer = DistilBertTokenizerFast.from_pretrained('distilbert-base-uncased')
+    tokenizer = RobertaTokenizer.from_pretrained('roberta-base')
 
-train_encodings = tokenizer(train_texts, truncation=True, padding=True)
-val_encodings = tokenizer(val_texts, truncation=True, padding=True)
-test_encodings = tokenizer(test_texts, truncation=True, padding=True)
+    train_encodings = tokenizer(train_texts, truncation=True, padding=True)
+    val_encodings = tokenizer(val_texts, truncation=True, padding=True)
+    # test_encodings = tokenizer(test_texts, truncation=True, padding=True)
 
-import torch
+    train_dataset = DepressionDataset(train_encodings, train_labels)
+    val_dataset = DepressionDataset(val_encodings, val_labels)
+    # test_dataset = DepressionDataset(test_encodings, test_labels)
+    tokenizer.save_pretrained('./saved_model/')
+    return train_dataset, val_dataset
 
-class IMDbDataset(torch.utils.data.Dataset):
-    def __init__(self, encodings, labels):
-        self.encodings = encodings
-        self.labels = labels
 
-    def __getitem__(self, idx):
-        item = {key: torch.tensor(val[idx]) for key, val in self.encodings.items()}
-        item['labels'] = torch.tensor(self.labels[idx])
-        return item
+def train_model(train_dataset, val_dataset): 
+    training_args = TrainingArguments(
+        output_dir='./results',          # output directory
+        num_train_epochs=3,              # total number of training epochs
+        per_device_train_batch_size=16,  # batch size per device during training
+        per_device_eval_batch_size=64,   # batch size for evaluation
+        warmup_steps=500,                # number of warmup steps for learning rate scheduler
+        weight_decay=0.01,               # strength of weight decay
+        logging_dir='./logs',            # directory for storing logs
+        logging_steps=10,
+    )
 
-    def __len__(self):
-        return len(self.labels)
+    model = RobertaForSequenceClassification.from_pretrained("roberta-base")
 
-train_dataset = IMDbDataset(train_encodings, train_labels)
-val_dataset = IMDbDataset(val_encodings, val_labels)
-test_dataset = IMDbDataset(test_encodings, test_labels)
+    trainer = Trainer(
+        model=model,                         # the instantiated  Transformers model to be trained
+        args=training_args,                  # training arguments, defined above
+        train_dataset=train_dataset,         # training dataset
+        eval_dataset=val_dataset             # evaluation dataset
+    )
 
-######TWO POSSIBLE ROUTES TO TRAIN THE MODEL#############
+    trainer.train()
 
-####THIS IS TRAINING USING THE TRAINER MODULE#######
-from transformers import DistilBertForSequenceClassification, Trainer, TrainingArguments
+    model.save_pretrained('./saved_model/')
 
-training_args = TrainingArguments(
-    output_dir='./results',          # output directory
-    num_train_epochs=3,              # total number of training epochs
-    per_device_train_batch_size=16,  # batch size per device during training
-    per_device_eval_batch_size=64,   # batch size for evaluation
-    warmup_steps=500,                # number of warmup steps for learning rate scheduler
-    weight_decay=0.01,               # strength of weight decay
-    logging_dir='./logs',            # directory for storing logs
-    logging_steps=10,
-)
 
-model = DistilBertForSequenceClassification.from_pretrained("distilbert-base-uncased")
+# ##### THIS IS TRADITIONAL TRAINING########
+# from torch.utils.data import DataLoader
+# from transformers import DistilBertForSequenceClassification, AdamW
 
-trainer = Trainer(
-    model=model,                         # the instantiated  Transformers model to be trained
-    args=training_args,                  # training arguments, defined above
-    train_dataset=train_dataset,         # training dataset
-    eval_dataset=val_dataset             # evaluation dataset
-)
+# device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
 
-trainer.train()
+# model = DistilBertForSequenceClassification.from_pretrained('distilbert-base-uncased')
+# model.to(device)
+# model.train()
 
-##### THIS IS TRADITIONAL TRAINING########
-from torch.utils.data import DataLoader
-from transformers import DistilBertForSequenceClassification, AdamW
+# train_loader = DataLoader(train_dataset, batch_size=16, shuffle=True)
 
-device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
+# optim = AdamW(model.parameters(), lr=5e-5)
 
-model = DistilBertForSequenceClassification.from_pretrained('distilbert-base-uncased')
-model.to(device)
-model.train()
+# for epoch in range(3):
+#     for batch in train_loader:
+#         optim.zero_grad()
+#         input_ids = batch['input_ids'].to(device)
+#         attention_mask = batch['attention_mask'].to(device)
+#         labels = batch['labels'].to(device)
+#         outputs = model(input_ids, attention_mask=attention_mask, labels=labels)
+#         loss = outputs[0]
+#         loss.backward()
+#         optim.step()
 
-train_loader = DataLoader(train_dataset, batch_size=16, shuffle=True)
-
-optim = AdamW(model.parameters(), lr=5e-5)
-
-for epoch in range(3):
-    for batch in train_loader:
-        optim.zero_grad()
-        input_ids = batch['input_ids'].to(device)
-        attention_mask = batch['attention_mask'].to(device)
-        labels = batch['labels'].to(device)
-        outputs = model(input_ids, attention_mask=attention_mask, labels=labels)
-        loss = outputs[0]
-        loss.backward()
-        optim.step()
-
-model.eval()
+# model.eval()
 
 
 
+if __name__ == "__main__":
+    train_data, val_data = encode_data()
+    train_model(train_data, val_data)

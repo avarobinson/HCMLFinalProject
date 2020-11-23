@@ -26,15 +26,15 @@ def read_csv_split(split_dir):
     texts = []
     labels = []
     # this may change slightly depending on what the dataset looks like
-    for tweet, label in df['tweet', 'label']:
-        texts.append(tweet)
-        labels.append(label)
+    for index, row in df.iterrows():
+        texts.append(row['tweet'])
+        labels.append(row['class'])
 
     return texts, labels
 
 
 def encode_data():    
-    train_texts, train_labels = read_csv_split('negative_tweets.csv')
+    train_texts, train_labels = read_csv_split('dataset_to_train.csv')
 
     # # use sklearn to split into train and test sets
     # train_texts, test_texts, train_labels, test_labels = train_test_split(train_texts, train_labels, test_size=.2)

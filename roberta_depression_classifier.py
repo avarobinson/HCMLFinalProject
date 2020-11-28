@@ -1,9 +1,23 @@
 # from pathlib import Path
 import pandas as pd
 from sklearn.model_selection import train_test_split
+from sklearn.metrics import f1_score, roc_auc_score, accuracy_score
 from transformers import RobertaTokenizer, RobertaForSequenceClassification, Trainer, TrainingArguments
 import torch
+import wandb
+wandb.login()
 
+def compute_metrics(pred):
+    labels = pred.label_ids
+    preds = pred.predictions.argmax(-1)
+    f1 = f1_score(labels, preds)
+    acc = accuracy_score(labels, preds)
+    roc_auc = roc_auc_score(labels, preds)
+    return {
+        'accuracy': acc,
+        'f1': f1,
+        'roc_auc': roc_auc
+    }
 
 class DepressionDataset(torch.utils.data.Dataset):
     def __init__(self, encodings, labels):
@@ -34,37 +48,40 @@ def read_csv_split(split_dir):
 
 
 def encode_data():    
-    train_texts, train_labels = read_csv_split('dataset_to_train.csv')
+    texts, labels = read_csv_split('./dataset_to_train.csv')
 
     # # use sklearn to split into train and test sets
-    # train_texts, test_texts, train_labels, test_labels = train_test_split(train_texts, train_labels, test_size=.2)
+    train_texts, test_texts, train_labels, test_labels = train_test_split(texts, labels, test_size=.2, shuffle=True)
 
     # split train data into train and validation sets (if we want)
-    train_texts, val_texts, train_labels, val_labels = train_test_split(train_texts, train_labels, test_size=.2)
+    train_texts, val_texts, train_labels, val_labels = train_test_split(train_texts, train_labels, test_size=.2, shuffle=True)
 
     tokenizer = RobertaTokenizer.from_pretrained('roberta-base')
 
     train_encodings = tokenizer(train_texts, truncation=True, padding=True)
     val_encodings = tokenizer(val_texts, truncation=True, padding=True)
-    # test_encodings = tokenizer(test_texts, truncation=True, padding=True)
+    test_encodings = tokenizer(test_texts, truncation=True, padding=True)
 
     train_dataset = DepressionDataset(train_encodings, train_labels)
     val_dataset = DepressionDataset(val_encodings, val_labels)
-    # test_dataset = DepressionDataset(test_encodings, test_labels)
-    tokenizer.save_pretrained('./saved_model/')
-    return train_dataset, val_dataset
+    test_dataset = DepressionDataset(test_encodings, test_labels)
+
+    tokenizer.save_pretrained('./roberta_v2/')
+
+    return train_dataset, val_dataset, test_dataset
 
 
-def train_model(train_dataset, val_dataset): 
+def train_model(train_dataset, val_dataset, test_dataset): 
     training_args = TrainingArguments(
-        output_dir='./results',          # output directory
-        num_train_epochs=3,              # total number of training epochs
-        per_device_train_batch_size=16,  # batch size per device during training
-        per_device_eval_batch_size=64,   # batch size for evaluation
-        warmup_steps=500,                # number of warmup steps for learning rate scheduler
+        output_dir='./results_v2',         # output directory  
+        evaluate_during_training=True,
+        num_train_epochs=5,              # total number of training epochs
+        per_device_train_batch_size=1,  # batch size per device during training
+        per_device_eval_batch_size=32,   # batch size for evaluation
+        warmup_steps=10,                # number of warmup steps for learning rate scheduler
         weight_decay=0.01,               # strength of weight decay
-        logging_dir='./logs',            # directory for storing logs
-        logging_steps=10,
+        logging_dir='./logs_v2',            # directory for storing logs
+        logging_steps=200,
     )
 
     model = RobertaForSequenceClassification.from_pretrained("roberta-base")
@@ -73,12 +90,37 @@ def train_model(train_dataset, val_dataset):
         model=model,                         # the instantiated  Transformers model to be trained
         args=training_args,                  # training arguments, defined above
         train_dataset=train_dataset,         # training dataset
-        eval_dataset=val_dataset             # evaluation dataset
+        eval_dataset=val_dataset,             # evaluation dataset
+        compute_metrics=compute_metrics
     )
 
     trainer.train()
+    trainer.evaluate(test_dataset)
 
-    model.save_pretrained('./saved_model/')
+    model.save_pretrained('./roberta_v2/')
+
+# def test_model(train_dataset, val_dataset):
+#     tokenizer = RobertaTokenizer.from_pretrained('./roberta_v1')
+    
+#     training_args = TrainingArguments(
+#         output_dir='./results_v1_2',         # output directory         
+#         per_device_train_batch_size=1,  # batch size per device during training
+#         per_device_eval_batch_size=64,   # batch size for evaluation
+#         warmup_steps=10,                # number of warmup steps for learning rate scheduler
+#         weight_decay=0.01,               # strength of weight decay
+#     )
+
+#     model = RobertaForSequenceClassification.from_pretrained('./roberta_v1')
+
+#     trainer = Trainer(
+#         model=model,                         # the instantiated  Transformers model to be trained
+#         args=training_args,      # training dataset
+#         train_dataset=train_dataset,
+#         eval_dataset=val_dataset,             # evaluation dataset
+#         compute_metrics=compute_metrics
+#     )
+#     trainer.evaluate()
+
 
 
 # ##### THIS IS TRADITIONAL TRAINING########
@@ -111,5 +153,6 @@ def train_model(train_dataset, val_dataset):
 
 
 if __name__ == "__main__":
-    train_data, val_data = encode_data()
-    train_model(train_data, val_data)
+    train_data, val_data, test_data = encode_data()
+    train_model(train_data, val_data, test_data)
+    # test_model(train_data, val_data)

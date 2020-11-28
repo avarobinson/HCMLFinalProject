@@ -68,7 +68,7 @@ class App extends Component {
   };
 
   resetData = (event) => {
-    this.setState({ currentUser: "" });
+    this.setState({userTweets: "", userResults: "", userPercentage: ""});
   }
 
   render() {

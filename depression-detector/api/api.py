@@ -20,14 +20,14 @@ def user_data():
     print(user)
     time = formData["timeframe"]
     print(time)
-    tweets = []
+    data = []
     a = twint.Config()
     ## Uncomment out limit depending on if you want to limit the number of tweets it grabs
     ## depending on user, could go on for a really long time
     a.Username = user
     a.Pandas = True
     a.Store_object = True
-    a.Store_object_tweets_list = tweets
+    a.Store_object_tweets_list = data
     a.Output = "none"
     
    # timeframes: past week, past month, past year, all tweets
@@ -49,7 +49,7 @@ def user_data():
     twint.run.Search(a)
     all_tweets = []
     
-    for i in tweets:
+    for i in data:
         all_tweets.append(i.tweet)
     print(all_tweets)
 

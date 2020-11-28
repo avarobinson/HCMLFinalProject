@@ -8,30 +8,35 @@ from datetime import date
 import datetime
 import pandas as pd
 import json
+import numpy 
 
 app = Flask(__name__)
 #CORS(app)
 
 @app.route('/api/v1', methods = ['POST'])
-def get_current_time():
+def user_data():
     formData = request.json
     user = formData["username"]
+    print(user)
     time = formData["timeframe"]
+    print(time)
+    tweets = []
     a = twint.Config()
     ## Uncomment out limit depending on if you want to limit the number of tweets it grabs
     ## depending on user, could go on for a really long time
     a.Username = user
     a.Pandas = True
     a.Store_object = True
+    a.Store_object_tweets_list = tweets
     a.Output = "none"
     
    # timeframes: past week, past month, past year, all tweets
-    if time != "alltime":
-        if time == "pastweek":
+    if time != "all time":
+        if time == "past week":
             weeks = 1
-        elif time == "pastmonth":
+        elif time == "past month":
             weeks = 4
-        elif time == "pastyear":
+        elif time == "past year":
             weeks = 52
         else:
             weeks = 0
@@ -40,12 +45,17 @@ def get_current_time():
         since.strftime("%yr-%m-%d")
         since = str(since)
         a.Since = since
-    
+
     twint.run.Search(a)
-    tweets_as_objects = twint.output.tweets_list
     all_tweets = []
-    for i in tweets_as_objects:
+    
+    for i in tweets:
         all_tweets.append(i.tweet)
+    print(all_tweets)
+
+    data = [0, 1, 1, 0, 1, 1]
+    percentage = numpy.mean(data) * 100
     #return all_tweets
     return {'user': str(all_tweets)}
+
         

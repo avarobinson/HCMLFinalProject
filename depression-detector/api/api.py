@@ -51,11 +51,12 @@ def user_data():
     
     for i in data:
         all_tweets.append(i.tweet)
-    print(all_tweets)
 
-    data = [0, 1, 1, 0, 1, 1]
-    percentage = numpy.mean(data) * 100
+    #dummy results and percentage
+    result = [0, 1, 1, 0, 1, 1]
+    percentage = numpy.mean(result) * 100
+    
     #return all_tweets
-    return {'user': str(all_tweets)}
+    return {'tweets': str(all_tweets), 'results': str(result), 'percentage': percentage}
 
         

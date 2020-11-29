@@ -69,8 +69,6 @@ class App extends Component {
     }
     ).then(res => res.json()).then(data => {
       this.setState({ userTweets: data.tweets, userResults: data.results, userPercentage: data.percentage, resultTable: data.table });
-      console.log("after send data");
-      console.log(data.table[0]);
 
     });
 

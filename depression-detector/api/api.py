@@ -18,10 +18,13 @@ app = Flask(__name__)
 
 @app.route('/api/v1', methods = ['POST'])
 def user_data():
+
     formData = request.json
     user = formData["username"]
     time = formData["timeframe"]
     data = []
+
+
     a = twint.Config()
     ## Uncomment out limit depending on if you want to limit the number of tweets it grabs
     ## depending on user, could go on for a really long time
@@ -29,7 +32,7 @@ def user_data():
     a.Pandas = True
     a.Store_object = True
     a.Store_object_tweets_list = data #only uses the tweets of the current user 
-    a.Output = "none"
+    a.Hide_output = True 
     
    # timeframes: past week, past month, past year, all tweets
     if time != "all time":
@@ -48,20 +51,26 @@ def user_data():
         a.Since = since
 
     twint.run.Search(a)
+
     all_tweets = []
     
     for i in data:
         all_tweets.append(i.tweet)
 
     #dummy results and percentage
-  
-    result = np.random.choice(2, len(data), replace=True)
-    result = result.tolist()
+    if len(data) != 0:
+        result = np.random.choice(2, len(data), replace=True)
+        result = result.tolist()
+    else:
+        result = []
 
     #turns given tweets and results into a list of objects used for the data table
     resultTable = [{"tweet" : t, "risk" : r} for t, r in zip(all_tweets, result)]
-
-    percentage = np.mean(result) * 100
+    
+    if len(result) != 0:
+        percentage = np.mean(result) * 100
+    else:
+        percentage = "not enough data to process"
     
     #return all_tweets
     return jsonify({'tweets': all_tweets, 'results': result, 'percentage': percentage, 'table': resultTable})

@@ -57,6 +57,7 @@ class App extends Component {
 
   sendData = () => {
     const formData = this.state.formData;
+    console.log(formData);
     this.setState({ userTweets: "", userResults: "", userPercentage: "", resultTable: [] });
     fetch('/api/v1', {
       headers: {
@@ -84,7 +85,6 @@ class App extends Component {
     // const userTweets = this.state.userTweets;
     // const userResults = this.state.userResults;
     const userPercentage = this.state.userPercentage;
-
     const resultTable = this.state.resultTable;
     return (
       <Container>
@@ -110,7 +110,6 @@ class App extends Component {
                 <option>all time</option>
               </Form.Control>
             </Form.Group>
-          </Form>
 
           <Row>
             <Col>
@@ -124,6 +123,8 @@ class App extends Component {
                   </Button>
             </Col>
           </Row>
+          </Form>
+
           {/* <p>User's tweets: {userTweets}.</p>
           <p> User's result: {userResults}</p> */}
           <p> User's risk percentage: {userPercentage}</p>

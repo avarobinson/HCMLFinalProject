@@ -1,6 +1,6 @@
-import React, {Component } from 'react';
+import React, { Component } from 'react';
 import './App.css';
-import { Form, Col, Container, Row, Button } from 'react-bootstrap';
+import { Form, Col, Container, Row, Button, InputGroup } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import * as d3 from 'd3';
 import "./index.css";
@@ -11,6 +11,7 @@ class App extends Component {
     super(props);
 
     this.state = {
+      formValid: false,
       userTweets: "",
       userResults: "",
       userPercentage: "",
@@ -45,18 +46,27 @@ class App extends Component {
     const value = event.target.value;
     const name = event.target.name;
     var formData = this.state.formData;
+    var formValid = this.state.formValid;
+    formValid = (name === "username" && value != "") ? true : false;
     formData[name] = value;
     this.setState({
-      formData
+      formData,
+      formValid
     });
   }
 
   resetData = (event) => {
-    this.setState({ userTweets: "", userResults: "", userPercentage: "", resultTable: [] });
+    this.setState({
+      formData: {
+        username: '',
+        timeframe: 'pastweek',
+      }, userTweets: "", userResults: "", userPercentage: "", resultTable: []
+    });
   }
 
   sendData = () => {
     const formData = this.state.formData;
+    console.log(formData);
     fetch('/api/v1', {
       headers: {
         'Accept': 'application/json',
@@ -72,28 +82,26 @@ class App extends Component {
 
   };
 
-
-  getFormData = (data) => {
-    this.setState({ formData: data })
-  }
-
   render() {
     const formData = this.state.formData;
     const columns = [{
       Header: "Tweet Assessment Breakdown",
       columns: [
-        {Header: "Time",
-      accessor: "time"},
         {
-        Header: "Tweet",
-        accessor: "tweet",
-        style: { 'whiteSpace': 'unset' }
-      },
-      {
-        Header: "Risk",
-        accessor: "risk"
-      }]
+          Header: "Time",
+          accessor: "time"
+        },
+        {
+          Header: "Tweet",
+          accessor: "tweet",
+          style: { 'whiteSpace': 'unset' }
+        },
+        {
+          Header: "Risk",
+          accessor: "risk"
+        }]
     }];
+
 
     // const userTweets = this.state.userTweets;
     // const userResults = this.state.userResults;
@@ -110,10 +118,15 @@ class App extends Component {
               <Col>
                 <Form.Group>
                   <Form.Label>Twitter Handle</Form.Label>
-                  <Form.Control type="text" placeholder="enter twitter handle" required name="username" value={formData.username} onChange={this.handleChange} />
-                  <Form.Control.Feedback type="invalid">
-                    Please provide a valid twitter handle.
+                  <InputGroup>
+                    <InputGroup.Prepend>
+                      <InputGroup.Text id="inputGroupPrepend">@</InputGroup.Text>
+                    </InputGroup.Prepend>
+                    <Form.Control type="text" placeholder="enter twitter handle" required={true} name="username" value={formData.username} onChange={this.handleChange} />
+                    <Form.Control.Feedback type="invalid">
+                      Please provide a valid twitter handle.
                   </Form.Control.Feedback>
+                  </InputGroup>
                 </Form.Group>
               </Col>
               <Col>
@@ -133,12 +146,12 @@ class App extends Component {
 
           <Row>
             <Col>
-              <Button block onClick={this.sendData}>
+              <Button block onClick={this.sendData} disabled={!this.state.formValid}>
                 Predict
                     </Button>
             </Col>
             <Col>
-              <Button block onClick={this.resetData}>
+              <Button block onClick={this.resetData}  >
                 Reset
                   </Button>
             </Col>
@@ -146,7 +159,7 @@ class App extends Component {
 
           {/* <p>User's tweets: {userTweets}.</p>
           <p> User's result: {userResults}</p> */}
-        
+
           {userPercentage === "" ? null : (userPercentage == "-1" ? <p> sorry, no tweets were found during this timeframe</p> : <p> user's risk percentage: {userPercentage} %</p>)}
 
         </div>

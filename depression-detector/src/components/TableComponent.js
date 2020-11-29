@@ -48,8 +48,10 @@ const Table = ({ data, columns }) => {
                                         {column.render("Header")}
                                         {column.isSorted ? column.isSortedDesc ? <BsArrowDown /> : <BsArrowUp /> : ""}
                                     </th>
+                               
                                 ))}
                             </tr>
+                          
                         ))}
                     </thead>
                     <tbody {...getTableBodyProps()}>

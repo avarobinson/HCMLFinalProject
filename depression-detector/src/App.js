@@ -81,7 +81,10 @@ class App extends Component {
     const formData = this.state.formData;
     const columns = [{
       Header: "Tweet Assessment Breakdown",
-      columns: [{
+      columns: [
+        {Header: "Time",
+      accessor: "time"},
+        {
         Header: "Tweet",
         accessor: "tweet",
         style: { 'whiteSpace': 'unset' }
@@ -143,7 +146,8 @@ class App extends Component {
 
           {/* <p>User's tweets: {userTweets}.</p>
           <p> User's result: {userResults}</p> */}
-          {userPercentage === "" ? null : <p> User's risk percentage: {userPercentage}%</p>} 
+        
+          {userPercentage === "" ? null : (userPercentage == "-1" ? <p> sorry, no tweets were found during this timeframe</p> : <p> user's risk percentage: {userPercentage} %</p>)}
 
         </div>
         <Table data={resultTable} columns={columns} />

@@ -52,10 +52,13 @@ def user_data():
 
     twint.run.Search(a)
 
-    all_tweets = []
+    tweet_content = []
+    tweet_times = []
+
     
     for i in data:
-        all_tweets.append(i.tweet)
+        tweet_content.append(i.tweet)
+        tweet_times.append(i.datetime)
 
     #dummy results and percentage
     if len(data) != 0:
@@ -65,14 +68,14 @@ def user_data():
         result = []
 
     #turns given tweets and results into a list of objects used for the data table
-    resultTable = [{"tweet" : t, "risk" : r} for t, r in zip(all_tweets, result)]
+    resultTable = [{"tweet" : t, "time" : d, "risk" : r} for t, d, r in zip(tweet_content, tweet_times, result)]
     
     if len(result) != 0:
         percentage = np.mean(result) * 100
     else:
-        percentage = "not enough data to process"
+        percentage = -1
     
     #return all_tweets
-    return jsonify({'tweets': all_tweets, 'results': result, 'percentage': percentage, 'table': resultTable})
+    return jsonify({'tweets': tweet_content, 'results': result, 'percentage': percentage, 'table': resultTable})
 
         

@@ -8,7 +8,10 @@ from datetime import date
 import datetime
 import pandas as pd
 import json
-import numpy 
+import numpy as np
+
+#just for dummy data
+import random
 
 app = Flask(__name__)
 #CORS(app)
@@ -17,9 +20,7 @@ app = Flask(__name__)
 def user_data():
     formData = request.json
     user = formData["username"]
-    print(user)
     time = formData["timeframe"]
-    print(time)
     data = []
     a = twint.Config()
     ## Uncomment out limit depending on if you want to limit the number of tweets it grabs
@@ -27,7 +28,7 @@ def user_data():
     a.Username = user
     a.Pandas = True
     a.Store_object = True
-    a.Store_object_tweets_list = data
+    a.Store_object_tweets_list = data #only uses the tweets of the current user 
     a.Output = "none"
     
    # timeframes: past week, past month, past year, all tweets
@@ -53,10 +54,16 @@ def user_data():
         all_tweets.append(i.tweet)
 
     #dummy results and percentage
-    result = [0, 1, 1, 0, 1, 1]
-    percentage = numpy.mean(result) * 100
+  
+    result = np.random.choice(2, len(data), replace=True)
+    result = result.tolist()
+
+    #turns given tweets and results into a list of objects used for the data table
+    resultTable = [{"tweet" : t, "risk" : r} for t, r in zip(all_tweets, result)]
+
+    percentage = np.mean(result) * 100
     
     #return all_tweets
-    return {'tweets': str(all_tweets), 'results': str(result), 'percentage': percentage}
+    return jsonify({'tweets': all_tweets, 'results': result, 'percentage': percentage, 'table': resultTable})
 
         

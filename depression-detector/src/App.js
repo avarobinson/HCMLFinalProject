@@ -1,9 +1,13 @@
 import React, { useState, useEffect, Component } from 'react';
-import logo from './logo.svg';
 import './App.css';
 import { Form, Col, Container, Row, Button } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import * as d3 from 'd3';
+import "./index.css";
+
+// Import React Table
+import ReactTable from "react-table-6";
+import "react-table-6/react-table.css";
 
 class App extends Component {
   constructor(props) {
@@ -15,6 +19,7 @@ class App extends Component {
       userTweets: "",
       userResults: "",
       userPercentage: "",
+      resultTable: [],//makeData(),
       formData: {
         username: '',
         timeframe: 'pastweek',
@@ -53,7 +58,7 @@ class App extends Component {
 
   sendData = () => {
     const formData = this.state.formData;
-    this.setState({userTweets: "", userResults: "", userPercentage: ""});
+    this.setState({ userTweets: "", userResults: "", userPercentage: "", resultTable: [] });
     fetch('/api/v1', {
       headers: {
         'Accept': 'application/json',
@@ -63,21 +68,26 @@ class App extends Component {
       body: JSON.stringify(formData)
     }
     ).then(res => res.json()).then(data => {
-      this.setState({ userTweets: data.tweets, userResults: data.results, userPercentage: data.percentage});
+      this.setState({ userTweets: data.tweets, userResults: data.results, userPercentage: data.percentage, resultTable: data.table });
+      console.log("after send data");
+      console.log(data.table[0]);
+
     });
+
   };
 
   resetData = (event) => {
-    this.setState({userTweets: "", userResults: "", userPercentage: ""});
+    this.setState({ userTweets: "", userResults: "", userPercentage: "" });
   }
 
   render() {
     const formData = this.state.formData;
 
-    const userTweets = this.state.userTweets;
-    const userResults = this.state.userResults;
+    // const userTweets = this.state.userTweets;
+    // const userResults = this.state.userResults;
     const userPercentage = this.state.userPercentage;
 
+    const resultTable = this.state.resultTable;
     return (
       <Container>
         <div>
@@ -120,9 +130,37 @@ class App extends Component {
               </Row>
             </Form.Row>
           </Form>
-          <p>User's tweets: {userTweets}.</p>
-          <p> User's result: {userResults}</p>
+          {/* <p>User's tweets: {userTweets}.</p>
+          <p> User's result: {userResults}</p> */}
           <p> User's risk percentage: {userPercentage}.</p>
+
+          {/* <ResultTable tweets={userTweets} results={userResults}></ResultTable> */}
+
+          <ReactTable
+            data={resultTable}
+            columns={
+              [{
+                Header: "Tweet",
+                accessor: "tweet",
+                style: { 'whiteSpace': 'unset' }
+              },
+              {
+                Header: "Risk",
+                accessor: "risk"
+              }
+              ]
+            }
+            style={
+              {
+                height: "400px"
+              }
+            }
+            className="-striped -highlight"
+            showPagination={false}
+
+          />
+
+
         </div>
       </Container>
     );
@@ -130,4 +168,3 @@ class App extends Component {
 }
 
 export default App;
-

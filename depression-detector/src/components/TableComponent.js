@@ -25,7 +25,7 @@ const Table = ({ data, columns }) => {
     );
 
     const handleFilterChange = e => {
-        const value = e.target.value || undefined;
+        const value = e.target.value;
         setFilter("tweet", value);
         setFilterInput(value);
     };
@@ -37,6 +37,7 @@ const Table = ({ data, columns }) => {
                 onChange={handleFilterChange}
                 placeholder={"Search Tweet"}
             />
+
             <div>
                 <table {...getTableProps()} >
                     <thead>

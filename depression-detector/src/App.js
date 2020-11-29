@@ -4,6 +4,7 @@ import { Form, Col, Container, Row, Button } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import * as d3 from 'd3';
 import "./index.css";
+import Table from './components/TableComponent';
 
 // Import React Table
 import ReactTable from "react-table-6";
@@ -13,13 +14,11 @@ class App extends Component {
   constructor(props) {
     super(props);
 
-    //this.myRef = React.createRef();
-
     this.state = {
       userTweets: "",
       userResults: "",
       userPercentage: "",
-      resultTable: [],//makeData(),
+      resultTable: [],
       formData: {
         username: '',
         timeframe: 'pastweek',
@@ -74,8 +73,9 @@ class App extends Component {
 
   };
 
-  resetData = (event) => {
-    this.setState({ userTweets: "", userResults: "", userPercentage: "" });
+
+  getFormData = (data) => {
+    this.setState({ formData: data })
   }
 
   render() {
@@ -89,8 +89,6 @@ class App extends Component {
     return (
       <Container>
         <div>
-          <div ref={this.myRef}>
-          </div>
           <h1 className="title">Detecting Depression via Twitter</h1>
         </div>
         <div className="content">
@@ -112,52 +110,25 @@ class App extends Component {
                 <option>all time</option>
               </Form.Control>
             </Form.Group>
-
-            <Form.Row>
-              <Row>
-                <Col>
-                  <Button block onClick={this.sendData}>
-                    Predict
-                    </Button>
-                </Col>
-                <Col>
-                  <Button block onClick={this.resetData}>
-                    Reset
-                  </Button>
-                </Col>
-              </Row>
-            </Form.Row>
           </Form>
+
+          <Row>
+            <Col>
+              <Button block onClick={this.sendData}>
+                Predict
+                    </Button>
+            </Col>
+            <Col>
+              <Button block onClick={this.resetData}>
+                Reset
+                  </Button>
+            </Col>
+          </Row>
           {/* <p>User's tweets: {userTweets}.</p>
           <p> User's result: {userResults}</p> */}
-          <p> User's risk percentage: {userPercentage}.</p>
+          <p> User's risk percentage: {userPercentage}</p>
 
-          {/* <ResultTable tweets={userTweets} results={userResults}></ResultTable> */}
-
-          <ReactTable
-            data={resultTable}
-            columns={
-              [{
-                Header: "Tweet",
-                accessor: "tweet",
-                style: { 'whiteSpace': 'unset' }
-              },
-              {
-                Header: "Risk",
-                accessor: "risk"
-              }
-              ]
-            }
-            style={
-              {
-                height: "400px"
-              }
-            }
-            className="-striped -highlight"
-            showPagination={false}
-
-          />
-
+          <Table data={resultTable} />
 
         </div>
       </Container>

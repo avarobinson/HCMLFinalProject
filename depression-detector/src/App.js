@@ -1,4 +1,4 @@
-import React, { useState, useEffect, Component } from 'react';
+import React, {Component } from 'react';
 import './App.css';
 import { Form, Col, Container, Row, Button } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -80,13 +80,16 @@ class App extends Component {
   render() {
     const formData = this.state.formData;
     const columns = [{
-      Header: "Tweet",
-      accessor: "tweet",
-      style: { 'whiteSpace': 'unset' }
-    },
-    {
-      Header: "Risk",
-      accessor: "risk"
+      Header: "Tweet Assessment Breakdown",
+      columns: [{
+        Header: "Tweet",
+        accessor: "tweet",
+        style: { 'whiteSpace': 'unset' }
+      },
+      {
+        Header: "Risk",
+        accessor: "risk"
+      }]
     }];
 
     // const userTweets = this.state.userTweets;
@@ -96,45 +99,51 @@ class App extends Component {
     return (
       <Container>
         <div>
-          <h1 className="title">Detecting Depression via Twitter</h1>
+          <h2 className="title">Detecting Depression via Twitter</h2>
         </div>
         <div className="content">
           <Form>
-            <Form.Group>
-              <Form.Label>Twitter Handle</Form.Label>
-              <Form.Control type="text" placeholder="enter twitter handle" required name="username" value={formData.username} onChange={this.handleChange} />
-              <Form.Control.Feedback type="invalid">
-                Please provide a valid twitter handle.
-                </Form.Control.Feedback>
-            </Form.Group>
-
-            <Form.Group>
-              <Form.Label>Timeframe</Form.Label>
-              <Form.Control as="select" value={formData.timeframe} name="timeframe" onChange={this.handleChange}>
-                <option>past week </option>
-                <option>past month</option>
-                <option>past year </option>
-                <option>all time</option>
-              </Form.Control>
-            </Form.Group>
-
             <Row>
               <Col>
-                <Button block onClick={this.sendData}>
-                  Predict
-                    </Button>
+                <Form.Group>
+                  <Form.Label>Twitter Handle</Form.Label>
+                  <Form.Control type="text" placeholder="enter twitter handle" required name="username" value={formData.username} onChange={this.handleChange} />
+                  <Form.Control.Feedback type="invalid">
+                    Please provide a valid twitter handle.
+                  </Form.Control.Feedback>
+                </Form.Group>
               </Col>
               <Col>
-                <Button block onClick={this.resetData}>
-                  Reset
-                  </Button>
+
+                <Form.Group>
+                  <Form.Label>Timeframe</Form.Label>
+                  <Form.Control as="select" value={formData.timeframe} name="timeframe" onChange={this.handleChange}>
+                    <option>past week </option>
+                    <option>past month</option>
+                    <option>past year </option>
+                    <option>all time</option>
+                  </Form.Control>
+                </Form.Group>
               </Col>
             </Row>
           </Form>
 
+          <Row>
+            <Col>
+              <Button block onClick={this.sendData}>
+                Predict
+                    </Button>
+            </Col>
+            <Col>
+              <Button block onClick={this.resetData}>
+                Reset
+                  </Button>
+            </Col>
+          </Row>
+
           {/* <p>User's tweets: {userTweets}.</p>
           <p> User's result: {userResults}</p> */}
-          <p> User's risk percentage: {userPercentage}</p>
+          {userPercentage === "" ? null : <p> User's risk percentage: {userPercentage}%</p>} 
 
         </div>
         <Table data={resultTable} columns={columns} />

@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import { useTable, useFilters, useSortBy } from "react-table";
 import "../index.css";
 import "../App.css";
+import { BsArrowDown, BsArrowUp } from "react-icons/bs";
 
 const Table = ({ data, columns }) => {
 
@@ -30,7 +31,7 @@ const Table = ({ data, columns }) => {
     };
 
     return (
-        <div>
+        <div className="assessmentBreakdown">
             <input
                 value={filterInput}
                 onChange={handleFilterChange}
@@ -42,12 +43,9 @@ const Table = ({ data, columns }) => {
                         {headerGroups.map(headerGroup => (
                             <tr {...headerGroup.getHeaderGroupProps()}>
                                 {headerGroup.headers.map(column => (
-                                    <th
-                                        {...column.getHeaderProps(column.getSortByToggleProps())}
-                                        className={
-                                            column.isSorted ? column.isSortedDesc ? "sort-desc" : "sort-asc" : ""}
-                                    >
+                                    <th {...column.getHeaderProps(column.getSortByToggleProps())}>
                                         {column.render("Header")}
+                                        {column.isSorted ? column.isSortedDesc ? <BsArrowDown /> : <BsArrowUp /> : ""}
                                     </th>
                                 ))}
                             </tr>

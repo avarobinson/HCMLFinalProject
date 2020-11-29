@@ -37,6 +37,11 @@
     }
 }
 
+table {
+    margin-right: 0px;
+    margin-left: auto;
+}
+
 thead,
 tbody {
     display: block;
@@ -52,11 +57,18 @@ table td {
     padding: 10px;
     border-bottom: 1px solid gray;
     position: relative;
-    width: 500px;
+    width: 250px;
 }
 
 input {
-    padding: 10px;
+    padding: 5px;
     border-radius: 5px;
     border: 1px solid;
+}
+
+.assessmentBreakdown {
+    margin-right: 0px;
+    margin-left: auto;
+    padding: 30px;
+    width: 500px;
 }

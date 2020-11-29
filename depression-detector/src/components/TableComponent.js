@@ -1,40 +1,76 @@
-import React, { useState, useEffect, Component } from 'react';
 
-import { Form, Col, Container, Row, Button } from 'react-bootstrap';
-import 'bootstrap/dist/css/bootstrap.min.css';
+import React, { useState } from "react";
+import { useTable, useFilters, useSortBy } from "react-table";
+import "../index.css";
+import "../App.css";
 
+const Table = ({ data, columns }) => {
 
-// Import React Table
-import ReactTable from "react-table-6";
-import "react-table-6/react-table.css";
-
-const Table = (props) => {
-    return (
-        <ReactTable
-    data={props.data}
-    columns={
-        [{
-            Header: "Tweet",
-            accessor: "tweet",
-            style: { 'whiteSpace': 'unset' }
+    const [filterInput, setFilterInput] = useState("");
+    const {
+        getTableProps,
+        getTableBodyProps,
+        headerGroups,
+        rows,
+        prepareRow,
+        setFilter
+    } = useTable(
+        {
+            columns,
+            data
         },
-        {
-            Header: "Risk",
-            accessor: "risk"
-        }
-        ]
-    }
-    style={
-        {
-            height: "400px"
-        }
-    }
-    className="-striped -highlight"
-    showPagination={false}
+        useFilters,
+        useSortBy
+    );
 
-/>
-    )
-}
+    const handleFilterChange = e => {
+        const value = e.target.value || undefined; 
+        setFilter("tweet", value);
+        setFilterInput(value);
+    };
 
-export default Table;
+    return (
+        <div>
+            <input
+                value={filterInput}
+                onChange={handleFilterChange}
+                placeholder={"Search Tweet"}
+                />
+            <div> 
+            <table {...getTableProps()} className = "scrollTable">
+                <thead>
+                    {headerGroups.map(headerGroup => (
+                        <tr {...headerGroup.getHeaderGroupProps()}>
+                            {headerGroup.headers.map(column => (
+                                <th
+                                    {...column.getHeaderProps(column.getSortByToggleProps())}
+                                    className={
+                                        column.isSorted ? column.isSortedDesc ? "sort-desc" : "sort-asc" : ""}
+                                >
+                                    {column.render("Header")}
+                                </th>
+                            ))}
+                        </tr>
+                    ))}
+                </thead>
+                <tbody {...getTableBodyProps()}>
+                    {rows.map((row, i) => {
+                        prepareRow(row);
+                        return (
+                            <tr {...row.getRowProps()}>
+                                {row.cells.map(cell => {
+                                    return (
+                                        <td {...cell.getCellProps()}>{cell.render("Cell")}</td>
+                                    );
+                                })}
+                            </tr>
+                        );
+                    })}
+                </tbody>
+            </table>
+            </div>
+            </div>
+    );
+};
 
+export default Table; 

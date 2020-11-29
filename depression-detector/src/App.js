@@ -6,10 +6,6 @@ import * as d3 from 'd3';
 import "./index.css";
 import Table from './components/TableComponent';
 
-// Import React Table
-import ReactTable from "react-table-6";
-import "react-table-6/react-table.css";
-
 class App extends Component {
   constructor(props) {
     super(props);
@@ -55,10 +51,13 @@ class App extends Component {
     });
   }
 
+  resetData = (event) => {
+    this.setState({ userTweets: "", userResults: "", userPercentage: "", resultTable: [] });
+  }
+
   sendData = () => {
     const formData = this.state.formData;
     console.log(formData);
-    this.setState({ userTweets: "", userResults: "", userPercentage: "", resultTable: [] });
     fetch('/api/v1', {
       headers: {
         'Accept': 'application/json',
@@ -81,6 +80,15 @@ class App extends Component {
 
   render() {
     const formData = this.state.formData;
+    const columns = [{
+      Header: "Tweet",
+      accessor: "tweet",
+      style: { 'whiteSpace': 'unset' }
+    },
+    {
+      Header: "Risk",
+      accessor: "risk"
+    }];
 
     // const userTweets = this.state.userTweets;
     // const userResults = this.state.userResults;
@@ -111,27 +119,26 @@ class App extends Component {
               </Form.Control>
             </Form.Group>
 
-          <Row>
-            <Col>
-              <Button block onClick={this.sendData}>
-                Predict
+            <Row>
+              <Col>
+                <Button block onClick={this.sendData}>
+                  Predict
                     </Button>
-            </Col>
-            <Col>
-              <Button block onClick={this.resetData}>
-                Reset
+              </Col>
+              <Col>
+                <Button block onClick={this.resetData}>
+                  Reset
                   </Button>
-            </Col>
-          </Row>
+              </Col>
+            </Row>
           </Form>
 
           {/* <p>User's tweets: {userTweets}.</p>
           <p> User's result: {userResults}</p> */}
           <p> User's risk percentage: {userPercentage}</p>
 
-          <Table data={resultTable} />
-
         </div>
+        <Table data={resultTable} columns={columns} />
       </Container>
     );
   }

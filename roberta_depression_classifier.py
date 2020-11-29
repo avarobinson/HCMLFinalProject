@@ -4,8 +4,14 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import f1_score, roc_auc_score, accuracy_score
 from transformers import RobertaTokenizer, RobertaForSequenceClassification, Trainer, TrainingArguments
 import torch
-import wandb
-wandb.login()
+# import wandb
+# wandb.login()
+import numpy as np
+import re
+import nltk
+nltk.download(['punkt','stopwords'])
+from nltk.corpus import stopwords
+stopwords = stopwords.words('english')
 
 def compute_metrics(pred):
     labels = pred.label_ids
@@ -37,6 +43,12 @@ class DepressionDataset(torch.utils.data.Dataset):
 # combine them to create text and label splits
 def read_csv_split(split_dir):
     df = pd.read_csv(split_dir)
+    df = df.drop_duplicates()
+    df['tweet'] = df['tweet'].apply(lambda x: ' '.join([item for item in x.split() if item not in stopwords]))
+    df['tweet'] = df['tweet'].apply(lambda x: x.encode('ascii', 'ignore').decode('ascii'))
+    df["tweet"] = df["tweet"].str.lower()
+    df['tweet'] = df['tweet'].apply(lambda x: re.split('https:\/\/.*', str(x))[0])
+
     texts = []
     labels = []
     # this may change slightly depending on what the dataset looks like
@@ -47,7 +59,7 @@ def read_csv_split(split_dir):
     return texts, labels
 
 
-def encode_data():    
+def encode_data(train=True):    
     texts, labels = read_csv_split('./dataset_to_train.csv')
 
     # # use sklearn to split into train and test sets
@@ -56,32 +68,38 @@ def encode_data():
     # split train data into train and validation sets (if we want)
     train_texts, val_texts, train_labels, val_labels = train_test_split(train_texts, train_labels, test_size=.2, shuffle=True)
 
-    tokenizer = RobertaTokenizer.from_pretrained('roberta-base')
+    if train:
+        tokenizer = RobertaTokenizer.from_pretrained('roberta-base')
 
-    train_encodings = tokenizer(train_texts, truncation=True, padding=True)
-    val_encodings = tokenizer(val_texts, truncation=True, padding=True)
-    test_encodings = tokenizer(test_texts, truncation=True, padding=True)
+        train_encodings = tokenizer(train_texts, truncation=True, padding=True)
+        val_encodings = tokenizer(val_texts, truncation=True, padding=True)
+        test_encodings = tokenizer(test_texts, truncation=True, padding=True)
 
-    train_dataset = DepressionDataset(train_encodings, train_labels)
-    val_dataset = DepressionDataset(val_encodings, val_labels)
-    test_dataset = DepressionDataset(test_encodings, test_labels)
+        train_dataset = DepressionDataset(train_encodings, train_labels)
+        val_dataset = DepressionDataset(val_encodings, val_labels)
+        test_dataset = DepressionDataset(test_encodings, test_labels)
 
-    tokenizer.save_pretrained('./roberta_v2/')
+        tokenizer.save_pretrained('./roberta_v2_3/')
 
-    return train_dataset, val_dataset, test_dataset
+        return train_dataset, val_dataset, test_dataset
+    
+    else:
+        return test_texts, test_labels
+        
+        
 
 
 def train_model(train_dataset, val_dataset, test_dataset): 
     training_args = TrainingArguments(
-        output_dir='./results_v2',         # output directory  
+        output_dir='./results_v2_3',         # output directory  
         evaluate_during_training=True,
         num_train_epochs=5,              # total number of training epochs
-        per_device_train_batch_size=1,  # batch size per device during training
+        per_device_train_batch_size=8,  # batch size per device during training
         per_device_eval_batch_size=32,   # batch size for evaluation
         warmup_steps=10,                # number of warmup steps for learning rate scheduler
         weight_decay=0.01,               # strength of weight decay
-        logging_dir='./logs_v2',            # directory for storing logs
-        logging_steps=200,
+        logging_dir='./logs_v2_3',            # directory for storing logs
+        logging_steps=15,
     )
 
     model = RobertaForSequenceClassification.from_pretrained("roberta-base")
@@ -97,7 +115,35 @@ def train_model(train_dataset, val_dataset, test_dataset):
     trainer.train()
     trainer.evaluate(test_dataset)
 
-    model.save_pretrained('./roberta_v2/')
+    model.save_pretrained('./roberta_v2_3/')
+
+def quick_test(tweet):
+    tokenizer = RobertaTokenizer.from_pretrained('./roberta_v2_3')
+    model = RobertaForSequenceClassification.from_pretrained('./roberta_v2_3')
+    inputs = tokenizer(tweet, return_tensors="pt")
+    model.eval()
+    output = model(inputs['input_ids'], inputs['attention_mask'], labels=None)
+    output = torch.argmax(output[0])
+    print("tweet: ", tweet)
+    print("prediction: ", output.item())
+    return output.item()
+
+
+    # training_args = TrainingArguments(
+    #     output_dir='./practice',
+    #     do_predict=True
+    # )
+    
+    # trainer = Trainer(
+    #     model=model,
+    #     args=training_args
+    # )
+    # inputs = tokenizer(tweet, return_tensors="pt")
+    # outputs = Trainer.predict(inputs)
+    # print(outputs)
+    # return outputs
+
+    
 
 # def test_model(train_dataset, val_dataset):
 #     tokenizer = RobertaTokenizer.from_pretrained('./roberta_v1')
@@ -153,6 +199,7 @@ def train_model(train_dataset, val_dataset, test_dataset):
 
 
 if __name__ == "__main__":
-    train_data, val_data, test_data = encode_data()
-    train_model(train_data, val_data, test_data)
+    test_tweets, test_labels = encode_data(train=False)
+    quick_test(test_tweets[200])
+    # train_model(train_data, val_data, test_data)
     # test_model(train_data, val_data)

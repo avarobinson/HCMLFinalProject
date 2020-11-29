@@ -57,7 +57,6 @@ class App extends Component {
 
   sendData = () => {
     const formData = this.state.formData;
-    console.log(formData);
     fetch('/api/v1', {
       headers: {
         'Accept': 'application/json',

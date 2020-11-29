@@ -24,7 +24,7 @@ const Table = ({ data, columns }) => {
     );
 
     const handleFilterChange = e => {
-        const value = e.target.value || undefined; 
+        const value = e.target.value || undefined;
         setFilter("tweet", value);
         setFilterInput(value);
     };
@@ -35,41 +35,41 @@ const Table = ({ data, columns }) => {
                 value={filterInput}
                 onChange={handleFilterChange}
                 placeholder={"Search Tweet"}
-                />
-            <div> 
-            <table {...getTableProps()} className = "scrollTable">
-                <thead>
-                    {headerGroups.map(headerGroup => (
-                        <tr {...headerGroup.getHeaderGroupProps()}>
-                            {headerGroup.headers.map(column => (
-                                <th
-                                    {...column.getHeaderProps(column.getSortByToggleProps())}
-                                    className={
-                                        column.isSorted ? column.isSortedDesc ? "sort-desc" : "sort-asc" : ""}
-                                >
-                                    {column.render("Header")}
-                                </th>
-                            ))}
-                        </tr>
-                    ))}
-                </thead>
-                <tbody {...getTableBodyProps()}>
-                    {rows.map((row, i) => {
-                        prepareRow(row);
-                        return (
-                            <tr {...row.getRowProps()}>
-                                {row.cells.map(cell => {
-                                    return (
-                                        <td {...cell.getCellProps()}>{cell.render("Cell")}</td>
-                                    );
-                                })}
+            />
+            <div>
+                <table {...getTableProps()} >
+                    <thead>
+                        {headerGroups.map(headerGroup => (
+                            <tr {...headerGroup.getHeaderGroupProps()}>
+                                {headerGroup.headers.map(column => (
+                                    <th
+                                        {...column.getHeaderProps(column.getSortByToggleProps())}
+                                        className={
+                                            column.isSorted ? column.isSortedDesc ? "sort-desc" : "sort-asc" : ""}
+                                    >
+                                        {column.render("Header")}
+                                    </th>
+                                ))}
                             </tr>
-                        );
-                    })}
-                </tbody>
-            </table>
+                        ))}
+                    </thead>
+                    <tbody {...getTableBodyProps()}>
+                        {rows.map((row, i) => {
+                            prepareRow(row);
+                            return (
+                                <tr {...row.getRowProps()}>
+                                    {row.cells.map(cell => {
+                                        return (
+                                            <td {...cell.getCellProps()}>{cell.render("Cell")}</td>
+                                        );
+                                    })}
+                                </tr>
+                            );
+                        })}
+                    </tbody>
+                </table>
             </div>
-            </div>
+        </div>
     );
 };
 

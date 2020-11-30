@@ -2,9 +2,9 @@ import React, { Component } from 'react';
 import './App.css';
 import { Form, Col, Container, Row, Button, InputGroup } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import * as d3 from 'd3';
 import "./index.css";
 import Table from './components/TableComponent';
+import PieChart from './components/PieChartComponent';
 
 class App extends Component {
   constructor(props) {
@@ -36,7 +36,6 @@ class App extends Component {
     //makes sure user entered something in twitter handle (or else they can't hit submit)
     var formValid = this.state.formValid;
     formValid = ( (name == "username" && value != "") || this.state.formData.username != "") ? true : false;
-
     this.setState({
       formData,
       formValid
@@ -100,7 +99,7 @@ class App extends Component {
         }]
     }];
 
-    
+    console.log(resultTable);
     return (
       <Container>
         <div>
@@ -150,7 +149,12 @@ class App extends Component {
 
           {this.state.errorMessage ? <p> Sorry, this twitter handle is invalid. Please enter a different twitter handle. </p> : userPercentage == "" ? null : (userPercentage == "-1" ? <p> Sorry, no tweets were found during this timeframe. Please select a different timeframe or twitter handle. </p> : <p> User's risk percentage: {userPercentage} %</p>)}
         </div>
+        
+        <div className = "visualization"> 
+        {resultTable.length == 0 ? null : <PieChart data={resultTable}/>} 
         <Table data={resultTable} columns={columns} />
+        
+        </div>
       </Container>
     );
   }

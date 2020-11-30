@@ -37,14 +37,16 @@
     }
 }
 
-table {
+
+/* table {
     margin-right: 0px;
     margin-left: auto;
-}
+} */
 
 thead,
 tbody {
     display: block;
+    width: 500px;
 }
 
 tbody {
@@ -52,12 +54,21 @@ tbody {
     overflow-y: scroll;
 }
 
-table th,
+table {
+    table-layout: fixed;
+    width: 100%;
+}
+
+table th {
+    padding: 10px;
+    border-bottom: 1px solid gray;
+    width: 500px;
+}
+
 table td {
     padding: 10px;
     border-bottom: 1px solid gray;
-    position: relative;
-    width: 400px;
+    column-width: 200px;
 }
 
 input {
@@ -67,8 +78,12 @@ input {
 }
 
 .assessmentBreakdown {
-    margin-right: 0px;
-    margin-left: auto;
     padding: 30px;
-    width: 500px;
+    width: 200px;
+}
+
+.visualization {
+    margin-top: 50px;
+    display: flex;
+    flex-direction: row;
 }

@@ -16,10 +16,21 @@ app = Flask(__name__)
 # CORS(app)
 
 
-@app.route('/api/v1', methods=['POST'])
-def user_data():
-
+@app.route('/api/v1', methods = ['POST'])
+def scrape_and_predict():
+    # this acts as the main function for a POST request
     formData = request.json
+    # 1. scrape data 
+    tweets = user_data(formData)
+    # 2. clean data 
+    clean_tweets = clean_and_format_data(tweets)
+    # 3. run model
+    predictions = predict(clean_tweets, tweets)
+    return predictions
+
+
+def user_data(formData):
+
     user = formData["username"]
     time = formData["timeframe"]
     data = []
@@ -50,22 +61,41 @@ def user_data():
         a.Since = since
 
     twint.run.Search(a)
+    return data 
 
+
+def clean_and_format_data(data):
+    #TODO: integrate Ellie's scripts for cleaning data and prep for model
+
+    # creates an array of tweet content only
     tweet_content = []
-    tweet_times = []
-
     for i in data:
         tweet_content.append(i.tweet)
-        tweet_times.append(i.datetime)
 
-    # dummy results and percentage
-    if len(data) != 0:
-        result = np.random.choice(2, len(data), replace=True)
+
+    return data
+    
+
+def predict(modelData, originalData):
+    # TODO: this is where the actual model should run 
+    
+    
+    
+    # additional data for visualizations (original tweet content & times )
+    tweet_content = []
+    tweet_times = []
+    for i in originalData:
+        tweet_content.append(i.tweet)
+        tweet_times.append(i.datetime)
+    
+    #dummy results and percentage (will be replaced by model results)
+    if len(tweet_content) != 0:
+        result = np.random.choice(2, len(tweet_content), replace=True)
         result = result.tolist()
     else:
         result = []
 
-    # turns given tweets and results into a list of objects used for the data table
+    # turns given tweets, times, and results into a list of objects used for the data table
     resultTable = [{"tweet": t, "time": d, "risk": r}
                    for t, d, r in zip(tweet_content, tweet_times, result)]
 

@@ -19,6 +19,9 @@ To start frontend:
 To start backend: 
   1. switch to a second terminal
   2. $ yarn start-api
+
+
+Note: may need to do git lfs install and git lfs pull to get the entire model 
   
   
   

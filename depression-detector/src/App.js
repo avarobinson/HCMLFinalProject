@@ -19,28 +19,10 @@ class App extends Component {
       formData: {
         username: '',
         timeframe: 'pastweek',
-      }
+      },
+      errorMessage: ''
     };
   }
-
-  // //d3 example
-  // componentDidMount() {
-  //   let size = 500;
-  //   let svg = d3.select(this.myRef.current)
-  //     .append('svg')
-  //     .attr('width', size)
-  //     .attr('height', size);
-  //   let rect_width = 95;
-  //   svg.selectAll('rect')
-  //     .data(this.dataset)
-  //     .enter()
-  //     .append('rect')
-  //     .attr('x', (d, i) => 5 + i * (rect_width + 5))
-  //     .attr('y', d => size - d)
-  //     .attr('width', rect_width)
-  //     .attr('height', d => d)
-  //     .attr('fill', 'teal');
-  // }
 
   handleChange = (event) => {
     const value = event.target.value;
@@ -60,13 +42,13 @@ class App extends Component {
       formData: {
         username: '',
         timeframe: 'pastweek',
-      }, userTweets: "", userResults: "", userPercentage: "", resultTable: []
+      }, userTweets: "", userResults: "", userPercentage: "", resultTable: [], errorMessage:""
     });
   }
 
   sendData = () => {
     const formData = this.state.formData;
-    console.log(formData);
+    this.setState({errorMessage: ""});
     fetch('/api/v1', {
       headers: {
         'Accept': 'application/json',
@@ -77,7 +59,8 @@ class App extends Component {
     }
     ).then(res => res.json()).then(data => {
       this.setState({ userTweets: data.tweets, userResults: data.results, userPercentage: data.percentage, resultTable: data.table });
-
+    }).catch((error) => {
+      this.setState({ errorMessage: error.message })
     });
 
   };
@@ -122,10 +105,7 @@ class App extends Component {
                     <InputGroup.Prepend>
                       <InputGroup.Text id="inputGroupPrepend">@</InputGroup.Text>
                     </InputGroup.Prepend>
-                    <Form.Control type="text" placeholder="enter twitter handle" required={true} name="username" value={formData.username} onChange={this.handleChange} />
-                    <Form.Control.Feedback type="invalid">
-                      Please provide a valid twitter handle.
-                  </Form.Control.Feedback>
+                    <Form.Control type="text" placeholder="enter twitter handle" name="username" value={formData.username} onChange={this.handleChange} />
                   </InputGroup>
                 </Form.Group>
               </Col>
@@ -160,8 +140,10 @@ class App extends Component {
           {/* <p>User's tweets: {userTweets}.</p>
           <p> User's result: {userResults}</p> */}
 
-          {userPercentage === "" ? null : (userPercentage == "-1" ? <p> sorry, no tweets were found during this timeframe</p> : <p> user's risk percentage: {userPercentage} %</p>)}
+          {this.state.errorMessage ? <p> Sorry, this twitter handle is invalid. Please enter a different twitter handle. </p> : userPercentage === "" ? null : (userPercentage == "-1" ? <p> Sorry, no tweets were found during this timeframe. Please select a different timeframe or twitter handle. </p> : <p> User's risk percentage: {userPercentage} %</p>)}
 
+          {/* {this.state.errorMessage &&
+            <h3 className="error"> sorry, this twitter handle is invalid </h3>} */}
         </div>
         <Table data={resultTable} columns={columns} />
       </Container>

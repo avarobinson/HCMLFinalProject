@@ -9,7 +9,6 @@ import datetime
 import pandas as pd
 import json
 import numpy as np
-
 # just for dummy data
 import random
 

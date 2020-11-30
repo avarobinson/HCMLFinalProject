@@ -1,107 +1,101 @@
-import React, { useEffect, useRef } from "react";
-import * as d3 from "d3";
 
 
-const PieChart = props => {
-  var width = 500;
-  var height = 500;
-  var outerRadius = Math.min(width, height) / 2;
-  var innerRadius = outerRadius * .50; 
+// const PieChart = props => {
+//   var width = 500;
+//   var height = 500;
+//   var outerRadius = Math.min(width, height) / 2;
+//   var innerRadius = outerRadius * .50; 
 
-  function reorganizeData (data){
+import React, { useEffect } from 'react';
+import * as d3 from 'd3';
+
+const PieChart = ({results}) => {
+
+  const margin = {
+    top: 50, right: 50, bottom: 50, left: 50,
+  };
+
+  function reorganizeData (results){
     var risk = 0;
     var noRisk = 0;
 
     var i;
-    for(i = 0; i < data.length; i++){
-      if(data[i].risk == 0){
+    for(i = 0; i < results.length; i++){
+      if(results[i].risk == 0){
         noRisk++;
       }else{
         risk++;
       }
     }
-    risk = risk*100/data.length;
-    noRisk = noRisk*100/data.length;
+    risk = risk*100/results.length;
+    noRisk = noRisk*100/results.length;
     
-    return [{ label: "risk", percent: risk}, {label: "noRisk", percent: noRisk}];
+    return [{ label: "risk", value: risk}, {label: "no risk", value: noRisk}];
   }
 
-  const percentage = reorganizeData(props.data);
-    
-  const ref = useRef(null);
-  const cache = useRef(percentage);
+  const data = reorganizeData(results);
 
-  const createPie = d3
-    .pie()
-    .value(d => d.percent)
-    .sort(null);
+  var outerRadius = 250;
+  var innerRadius = 175; 
 
-  const createArc = d3
-    .arc()
-    .innerRadius(innerRadius)
-    .outerRadius(outerRadius);
+  const width = 2 * outerRadius + margin.left + margin.right;
+  const height = 2 * outerRadius + margin.top + margin.bottom;
   const colors = d3.scaleOrdinal(d3.schemeCategory10);
-  const format = d3.format(".2f");
 
-  useEffect(
-    () => {
-      const data = createPie(percentage);
-      const prevData = createPie(cache.current);
-      const group = d3.select(ref.current);
-      const groupWithData = group.selectAll("g.arc").data(data);
+  useEffect(() => {
+    drawChart();
+  }, [data]);
 
-      groupWithData.exit().remove();
+  function drawChart() {
+    // Remove the old svg
+    d3.select('#piechart')
+      .select('svg')
+      .remove();
 
-      const groupWithUpdate = groupWithData
-        .enter()
-        .append("g")
-        .attr("class", "arc");
+    // Create new svg
+    const svg = d3
+      .select('#piechart')
+      .append('svg')
+      .attr('width', width)
+      .attr('height', height)
+      .append('g')
+      .attr('transform', `translate(${width / 2}, ${height / 2})`);
 
-      const path = groupWithUpdate
-        .append("path")
-        .merge(groupWithData.select("path.arc"));
+    const arcGenerator = d3
+      .arc()
+      .innerRadius(innerRadius)
+      .outerRadius(outerRadius);
 
-      const arcTween = (d, i) => {
-        const interpolator = d3.interpolate(prevData[i], d);
+    const pieGenerator = d3
+      .pie()
+      .padAngle(0)
+      .value((d) => d.value);
 
-        return t => createArc(interpolator(t));
-      };
+    const arc = svg
+      .selectAll()
+      .data(pieGenerator(data))
+      .enter();
 
-      path
-        .attr("class", "arc")
-        .attr("fill", (d, i) => colors(i))
-        .transition()
-        .attrTween("d", arcTween);
+    // Append arcs
+    arc
+      .append('path')
+      .attr('d', arcGenerator)
+      .style('fill', (_, i) => colors(i));
 
-      const text = groupWithUpdate
-        .append("text")
-        .merge(groupWithData.select("text"));
+    // Append text labels
+    arc
+      .append('text')
+      .attr('text-anchor', 'middle')
+      .attr('alignment-baseline', 'middle')
+      .text((d) => d.data.label)
+      .style('fill', 'white')
+      .attr('transform', (d) => {
+        const [x, y] = arcGenerator.centroid(d);
+        return `translate(${x}, ${y})`;
+      });
+  }    
 
-      text
-        .style("font-size", 20)
-        .transition()
-        .attr("transform", d => `translate(${createArc.centroid(d)})`)
-        .tween("text", (d, i, nodes) => {
-          const interpolator = d3.interpolate(prevData[i], d);
-
-          return t => d3.select(nodes[i]).text(format(interpolator(t).value));
-        });
-
-      cache.current = percentage;
-    },
-    [percentage]
-  );
-
-  return (
-    <div>
-      <svg width={width} height={height}>
-        <g
-          ref={ref}
-          transform={`translate(${outerRadius} ${outerRadius})`}
-        />
-      </svg>
-    </div>
-  );
-};
+  return (<div id="piechart" />);
+}
 
 export default PieChart;

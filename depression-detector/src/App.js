@@ -99,7 +99,6 @@ class App extends Component {
         }]
     }];
 
-    console.log(resultTable);
     return (
       <Container>
         <div>
@@ -151,7 +150,7 @@ class App extends Component {
         </div>
         
         <div className = "visualization"> 
-        {resultTable.length == 0 ? null : <PieChart data={resultTable}/>} 
+        {resultTable.length == 0 ? null : <PieChart results={resultTable}/>} 
         <Table data={resultTable} columns={columns} />
         
         </div>

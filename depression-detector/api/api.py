@@ -17,9 +17,20 @@ app = Flask(__name__)
 #CORS(app)
 
 @app.route('/api/v1', methods = ['POST'])
-def user_data():
-
+def scrape_and_predict():
+    # this acts as the main function for a POST request
     formData = request.json
+    # 1. scrape data 
+    tweets = user_data(formData)
+    # 2. clean data 
+    clean_tweets = clean_and_format_data(tweets)
+    # 3. run model
+    predictions = predict(clean_tweets)
+    return predictions
+
+
+def user_data(formData):
+
     user = formData["username"]
     time = formData["timeframe"]
     data = []
@@ -56,7 +67,18 @@ def user_data():
     
     for i in data:
         all_tweets.append(i.tweet)
+    
+    return all_tweets
 
+
+def clean_and_format_data(data):
+    #TODO: integrate Ellie's scripts for cleaning data and prep for model
+    return data
+    
+
+def predict(data):
+    # TODO: this is where the actual model should run 
+    
     #dummy results and percentage
     if len(data) != 0:
         result = np.random.choice(2, len(data), replace=True)
@@ -65,14 +87,11 @@ def user_data():
         result = []
 
     #turns given tweets and results into a list of objects used for the data table
-    resultTable = [{"tweet" : t, "risk" : r} for t, r in zip(all_tweets, result)]
+    resultTable = [{"tweet" : t, "risk" : r} for t, r in zip(data, result)]
     
     if len(result) != 0:
         percentage = np.mean(result) * 100
     else:
         percentage = "not enough data to process"
-    
-    #return all_tweets
-    return jsonify({'tweets': all_tweets, 'results': result, 'percentage': percentage, 'table': resultTable})
 
-        
+    return jsonify({'tweets': data, 'results': result, 'percentage': percentage, 'table': resultTable})

@@ -1,47 +1,46 @@
-
-
-// const PieChart = props => {
-//   var width = 500;
-//   var height = 500;
-//   var outerRadius = Math.min(width, height) / 2;
-//   var innerRadius = outerRadius * .50; 
-
 import React, { useEffect } from 'react';
 import * as d3 from 'd3';
 
-const PieChart = ({results}) => {
+const PieChart = ({ results }) => {
 
   const margin = {
-    top: 50, right: 50, bottom: 50, left: 50,
+    top: 50, right: 50, bottom: 50,
   };
 
-  function reorganizeData (results){
+  //getting risk percentage (setting this up so user can check between diff timelines within tweet scraped)
+  function reorganizeData(results) {
     var risk = 0;
     var noRisk = 0;
 
     var i;
-    for(i = 0; i < results.length; i++){
-      if(results[i].risk == 0){
+    for (i = 0; i < results.length; i++) {
+      if (results[i].risk == 0) {
         noRisk++;
-      }else{
+      } else {
         risk++;
       }
     }
-    risk = risk*100/results.length;
-    noRisk = noRisk*100/results.length;
-    
-    return [{ label: "risk", value: risk}, {label: "no risk", value: noRisk}];
+    risk = risk * 100 / results.length;
+    noRisk = noRisk * 100 / results.length;
+
+    return [{ label: "risk", value: risk.toFixed(2) }, { label: "no risk", value: noRisk.toFixed(2) }];
   }
 
   const data = reorganizeData(results);
 
-  var outerRadius = 250;
-  var innerRadius = 175; 
+  var outerRadius = 225;
+  var innerRadius = 150;
 
-  const width = 2 * outerRadius + margin.left + margin.right;
-  const height = 2 * outerRadius + margin.top + margin.bottom;
+  const width = 3 * outerRadius; 
+  const height = 2.5 * outerRadius;
   const colors = d3.scaleOrdinal(d3.schemeCategory10);
 
+  // legend dimensions
+  var legendRectSize = 40; 
+  var legendHorizontal = -320;
+  var legendSpacing = 50;
+
+ 
   useEffect(() => {
     drawChart();
   }, [data]);
@@ -53,7 +52,7 @@ const PieChart = ({results}) => {
       .remove();
 
     // Create new svg
-    const svg = d3
+    var svg = d3
       .select('#piechart')
       .append('svg')
       .attr('width', width)
@@ -80,20 +79,45 @@ const PieChart = ({results}) => {
     arc
       .append('path')
       .attr('d', arcGenerator)
-      .style('fill', (_, i) => colors(i));
+      .attr('fill', function(d) { return colors(d.data.label); }); 
+      //.style('fill', (_, i) => colors(i));
 
     // Append text labels
     arc
       .append('text')
       .attr('text-anchor', 'middle')
       .attr('alignment-baseline', 'middle')
-      .text((d) => d.data.label)
+      .text((d) => d.data.value)
       .style('fill', 'white')
       .attr('transform', (d) => {
         const [x, y] = arcGenerator.centroid(d);
         return `translate(${x}, ${y})`;
       });
-  }    
+
+    //legend
+    var legend = svg.selectAll() 
+      .data(colors.domain()) 
+      .enter()
+      .append('g') 
+      .attr('class', 'legend') 
+      .attr('transform', function (d, i) {
+        var vert = i * legendSpacing; 
+        return 'translate(' + legendHorizontal + ',' + vert + ')';     
+      });
+
+    // adding squares to legend
+    legend.append('rect')                                   
+      .attr('width', legendRectSize)                     
+      .attr('height', legendRectSize)                      
+      .style('fill', colors);
+
+    // adding text to legend
+    legend.append('text')
+      .attr('x', legendRectSize + 10)
+      .attr('y', legendRectSize - 10)
+      .text(function (d) { return d; }); 
+
+  }
 
   return (<div id="piechart" />);
 }

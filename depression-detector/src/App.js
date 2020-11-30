@@ -24,19 +24,26 @@ class App extends Component {
     };
   }
 
+  //updates form data whenever user adds their data, also does form validation
   handleChange = (event) => {
     const value = event.target.value;
     const name = event.target.name;
+
+    //sets form data 
     var formData = this.state.formData;
+    formData[name] = value;
+
+    //makes sure user entered something in twitter handle (or else they can't hit submit)
     var formValid = this.state.formValid;
     formValid = (name === "username" && value != "") ? true : false;
-    formData[name] = value;
+
     this.setState({
       formData,
       formValid
     });
   }
 
+  //resets data when user clicks reset button
   resetData = (event) => {
     this.setState({
       formData: {
@@ -46,6 +53,8 @@ class App extends Component {
     });
   }
 
+
+  //sends data to flask api as a post request when user hits the predict button
   sendData = () => {
     const formData = this.state.formData;
     this.setState({errorMessage: ""});
@@ -58,8 +67,10 @@ class App extends Component {
       body: JSON.stringify(formData)
     }
     ).then(res => res.json()).then(data => {
+      //updates percentage & breakdown table 
       this.setState({ userTweets: data.tweets, userResults: data.results, userPercentage: data.percentage, resultTable: data.table });
     }).catch((error) => {
+      //notifies user that they submitted an invalid twitter handle 
       this.setState({ errorMessage: error.message })
     });
 
@@ -67,6 +78,10 @@ class App extends Component {
 
   render() {
     const formData = this.state.formData;
+    const userPercentage = this.state.userPercentage;
+
+    //data for breakdown table 
+    const resultTable = this.state.resultTable;
     const columns = [{
       Header: "Tweet Assessment Breakdown",
       columns: [
@@ -85,11 +100,7 @@ class App extends Component {
         }]
     }];
 
-
-    // const userTweets = this.state.userTweets;
-    // const userResults = this.state.userResults;
-    const userPercentage = this.state.userPercentage;
-    const resultTable = this.state.resultTable;
+    
     return (
       <Container>
         <div>
@@ -137,13 +148,7 @@ class App extends Component {
             </Col>
           </Row>
 
-          {/* <p>User's tweets: {userTweets}.</p>
-          <p> User's result: {userResults}</p> */}
-
           {this.state.errorMessage ? <p> Sorry, this twitter handle is invalid. Please enter a different twitter handle. </p> : userPercentage === "" ? null : (userPercentage == "-1" ? <p> Sorry, no tweets were found during this timeframe. Please select a different timeframe or twitter handle. </p> : <p> User's risk percentage: {userPercentage} %</p>)}
-
-          {/* {this.state.errorMessage &&
-            <h3 className="error"> sorry, this twitter handle is invalid </h3>} */}
         </div>
         <Table data={resultTable} columns={columns} />
       </Container>

@@ -6,8 +6,8 @@ import "../App.css";
 import { BsArrowDown, BsArrowUp } from "react-icons/bs";
 
 const Table = ({ data, columns }) => {
-
-    const [filterInput, setFilterInput] = useState("");
+    
+    //handles table properties 
     const {
         getTableProps,
         getTableBodyProps,
@@ -24,6 +24,8 @@ const Table = ({ data, columns }) => {
         useSortBy
     );
 
+    //handles filter in search bar 
+    const [filterInput, setFilterInput] = useState("");
     const handleFilterChange = e => {
         const value = e.target.value;
         setFilter("tweet", value);

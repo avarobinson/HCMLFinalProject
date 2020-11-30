@@ -35,7 +35,7 @@ class App extends Component {
 
     //makes sure user entered something in twitter handle (or else they can't hit submit)
     var formValid = this.state.formValid;
-    formValid = (name === "username" && value != "") ? true : false;
+    formValid = ( (name == "username" && value != "") || this.state.formData.username != "") ? true : false;
 
     this.setState({
       formData,
@@ -148,7 +148,7 @@ class App extends Component {
             </Col>
           </Row>
 
-          {this.state.errorMessage ? <p> Sorry, this twitter handle is invalid. Please enter a different twitter handle. </p> : userPercentage === "" ? null : (userPercentage == "-1" ? <p> Sorry, no tweets were found during this timeframe. Please select a different timeframe or twitter handle. </p> : <p> User's risk percentage: {userPercentage} %</p>)}
+          {this.state.errorMessage ? <p> Sorry, this twitter handle is invalid. Please enter a different twitter handle. </p> : userPercentage == "" ? null : (userPercentage == "-1" ? <p> Sorry, no tweets were found during this timeframe. Please select a different timeframe or twitter handle. </p> : <p> User's risk percentage: {userPercentage} %</p>)}
         </div>
         <Table data={resultTable} columns={columns} />
       </Container>

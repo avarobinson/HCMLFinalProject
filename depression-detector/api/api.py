@@ -32,6 +32,11 @@ def scrape_and_predict():
 
 
 def user_data(formData):
+    """Scrape user data from Twitter based on user inputs"""
+
+    "Input: formData dictionary from react form "
+    "Outputs: scraped data"
+
 
     user = formData["username"]
     time = formData["timeframe"]
@@ -68,6 +73,7 @@ def user_data(formData):
 
 def clean_and_format_data(data):
     #TODO: integrate Ellie's scripts for cleaning data and prep for model
+    #TODO: add in split csv script
 
     # creates an array of tweet content only
     tweet_content = []
@@ -77,6 +83,11 @@ def clean_and_format_data(data):
     return tweet_content
     
 def predict(modelData, originalData):
+    """Run model on each tweet"""
+    "Inputs: modelData - list of strings (pure tweets), origonalData - data scraped from twint"
+    "Outputs: json of tweets, results, risk percentage, results table"\
+    
+
     tokenizer = RobertaTokenizer.from_pretrained('../../roberta_v2_3')
     model = RobertaForSequenceClassification.from_pretrained('../../roberta_v2_3')
 
@@ -107,9 +118,10 @@ def predict(modelData, originalData):
 
 def predict_tweet(tweet, model, tokenizer):
     """Predict on a single tweet"""
-
     "Input: string of tweet"
     "Output: 0 or 1"
+
+
     print('predicting single tweet', tweet)
     inputs = tokenizer(tweet, return_tensors="pt")
     model.eval()

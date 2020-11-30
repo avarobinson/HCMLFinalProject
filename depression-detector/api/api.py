@@ -9,8 +9,6 @@ import datetime
 import pandas as pd
 import json
 import numpy as np
-# just for dummy data
-import random
 from transformers import RobertaTokenizer, RobertaForSequenceClassification
 import torch
 
@@ -68,13 +66,14 @@ def user_data(formData):
         a.Since = since
 
     twint.run.Search(a)
+
     return data 
 
 
 def clean_and_format_data(data):
     #TODO: integrate Ellie's scripts for cleaning data and prep for model
     #TODO: add in split csv script
-
+    
     # creates an array of tweet content only
     tweet_content = []
     for i in data:
@@ -87,7 +86,6 @@ def predict(modelData, originalData):
     "Inputs: modelData - list of strings (pure tweets), origonalData - data scraped from twint"
     "Outputs: json of tweets, results, risk percentage, results table"\
     
-
     tokenizer = RobertaTokenizer.from_pretrained('../../roberta_v2_3')
     model = RobertaForSequenceClassification.from_pretrained('../../roberta_v2_3')
 
@@ -107,6 +105,7 @@ def predict(modelData, originalData):
     resultTable = [{"tweet": t, "time": d, "risk": r}
                    for t, d, r in zip(tweet_content, tweet_times, predictions)]
 
+    #calculating risk percentage based on results 
     if len(predictions) != 0:
         percentage = np.mean(predictions) * 100
     else:

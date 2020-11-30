@@ -38,6 +38,8 @@ schedule==0.6.0
 six==1.15.0
 soupsieve==2.0.1
 -e git+https://github.com/twintproject/twint.git@a45a8ac719d5710e7da92f77d9801b351e505c1f#egg=twint
+torch==1.7.0
+transformers==3.5.1
 typing-extensions==3.7.4.3
 urllib3==1.26.2
 Werkzeug==1.0.1

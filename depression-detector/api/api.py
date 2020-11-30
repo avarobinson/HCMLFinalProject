@@ -11,6 +11,8 @@ import json
 import numpy as np
 # just for dummy data
 import random
+from transformers import RobertaTokenizer, RobertaForSequenceClassification
+import torch
 
 app = Flask(__name__)
 # CORS(app)
@@ -72,14 +74,16 @@ def clean_and_format_data(data):
     for i in data:
         tweet_content.append(i.tweet)
 
-
-    return data
+    return tweet_content
     
-
 def predict(modelData, originalData):
-    # TODO: this is where the actual model should run 
-    
-    
+    tokenizer = RobertaTokenizer.from_pretrained('../../roberta_v2_3')
+    model = RobertaForSequenceClassification.from_pretrained('../../roberta_v2_3')
+
+    predictions = []
+    for tweet in modelData:
+        model_prediction = predict_tweet(tweet, model, tokenizer)
+        predictions.append(model_prediction)
     
     # additional data for visualizations (original tweet content & times )
     tweet_content = []
@@ -87,22 +91,30 @@ def predict(modelData, originalData):
     for i in originalData:
         tweet_content.append(i.tweet)
         tweet_times.append(i.datetime)
-    
-    #dummy results and percentage (will be replaced by model results)
-    if len(tweet_content) != 0:
-        result = np.random.choice(2, len(tweet_content), replace=True)
-        result = result.tolist()
-    else:
-        result = []
 
     # turns given tweets, times, and results into a list of objects used for the data table
     resultTable = [{"tweet": t, "time": d, "risk": r}
-                   for t, d, r in zip(tweet_content, tweet_times, result)]
+                   for t, d, r in zip(tweet_content, tweet_times, predictions)]
 
-    if len(result) != 0:
-        percentage = np.mean(result) * 100
+    if len(predictions) != 0:
+        percentage = np.mean(predictions) * 100
     else:
         percentage = -1
 
     # return all_tweets
-    return jsonify({'tweets': tweet_content, 'results': result, 'percentage': percentage, 'table': resultTable})
+    return jsonify({'tweets': tweet_content, 'results': predictions, 'percentage': percentage, 'table': resultTable})
+
+
+def predict_tweet(tweet, model, tokenizer):
+    """Predict on a single tweet"""
+
+    "Input: string of tweet"
+    "Output: 0 or 1"
+    print('predicting single tweet', tweet)
+    inputs = tokenizer(tweet, return_tensors="pt")
+    model.eval()
+    output = model(inputs['input_ids'], inputs['attention_mask'], labels=None)
+    output = torch.argmax(output[0])
+    # print("tweet: ", tweet)
+    # print("prediction: ", output.item())
+    return output.item()

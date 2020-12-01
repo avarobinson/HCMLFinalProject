@@ -1,125 +1,142 @@
-import React, { useEffect } from 'react';
-import * as d3 from 'd3';
+import React, { useEffect, useRef } from "react";
+import * as d3 from "d3";
 
 const PieChart = ({ results }) => {
 
-  const margin = {
-    top: 50, right: 50, bottom: 50,
-  };
+    function reorganizeData(results) {
+        if (results.length == 0) {
+            return [{ label: "no data", value: 100.00}];
+        }
+        var risk = 0;
+        var noRisk = 0;
 
-  //getting risk percentage (setting this up so user can check between diff timelines within tweet scraped)
-  function reorganizeData(results) {
-    var risk = 0;
-    var noRisk = 0;
+        var i;
+        for (i = 0; i < results.length; i++) {
+            if (results[i].risk == 0) {
+                noRisk++;
+            } else {
+                risk++;
+            }
+        }
+        risk = risk * 100 / results.length;
+        noRisk = noRisk * 100 / results.length;
 
-    var i;
-    for (i = 0; i < results.length; i++) {
-      if (results[i].risk == 0) {
-        noRisk++;
-      } else {
-        risk++;
-      }
+        return [{ label: "risk", value: risk.toFixed(2) }, { label: "no risk", value: noRisk.toFixed(2) }];
     }
-    risk = risk * 100 / results.length;
-    noRisk = noRisk * 100 / results.length;
 
-    return [{ label: "risk", value: risk.toFixed(2) }, { label: "no risk", value: noRisk.toFixed(2) }];
-  }
+    var data = reorganizeData(results);
 
-  const data = reorganizeData(results);
+    var outerRadius = 225;
+    var innerRadius = 150;
 
-  var outerRadius = 225;
-  var innerRadius = 150;
+    const width = 3 * outerRadius;
+    const height = 2.5 * outerRadius;
+    const colors = d3.scaleOrdinal(d3.schemeCategory10);
 
-  const width = 3 * outerRadius; 
-  const height = 2.5 * outerRadius;
-  const colors = d3.scaleOrdinal(d3.schemeCategory10);
+    // legend dimensions
+    var legendRectSize = 10;
+    var legendHorizontal = -325;
+    var legendSpacing = 50;
 
-  // legend dimensions
-  var legendRectSize = 40; 
-  var legendHorizontal = -320;
-  var legendSpacing = 50;
+    const ref = useRef(null);
+    const cache = useRef(data);
+    const createPie = d3
+        .pie()
+        .value((d) => d.value)
+        .sort(null);
+    const createArc = d3
+        .arc()
+        .innerRadius(innerRadius)
+        .outerRadius(outerRadius);
+    const format = d3.format(".2f");
 
- 
-  useEffect(() => {
-    drawChart();
-  }, [data]);
+    function createChart(){
+        const pie = createPie(data);
+        const prevData = createPie(cache.current);
+        const group = d3.select(ref.current);
+        const groupWithData = group.selectAll("g.arc").data(pie);
+        const legendWithData = group.selectAll("g.legend").remove();
 
-  function drawChart() {
-    // Remove the old svg
-    d3.select('#piechart')
-      .select('svg')
-      .remove();
+        groupWithData.exit().remove();
+        group.selectAll("g.legend").exit().remove();
 
-    // Create new svg
-    var svg = d3
-      .select('#piechart')
-      .append('svg')
-      .attr('width', width)
-      .attr('height', height)
-      .append('g')
-      .attr('transform', `translate(${width / 2}, ${height / 2})`);
 
-    const arcGenerator = d3
-      .arc()
-      .innerRadius(innerRadius)
-      .outerRadius(outerRadius);
+        const groupWithUpdate = groupWithData
+            .enter()
+            .append("g")
+            .attr("class", "arc");
 
-    const pieGenerator = d3
-      .pie()
-      .padAngle(0)
-      .value((d) => d.value);
+        const path = groupWithUpdate
+            .append("path")
+            .merge(groupWithData.select("path.arc"));
 
-    const arc = svg
-      .selectAll()
-      .data(pieGenerator(data))
-      .enter();
+        const arcTween = (d, i) => {
+            const interpolator = d3.interpolate(prevData[i], d);
+            return (t) => createArc(interpolator(t));
+        };
 
-    // Append arcs
-    arc
-      .append('path')
-      .attr('d', arcGenerator)
-      .attr('fill', function(d) { return colors(d.data.label); }); 
-      //.style('fill', (_, i) => colors(i));
+        path
+            .transition().duration(1000)
+            .attr("class", "arc")
+            .attr("fill", (d) => colors(d.data.label))
+            .attrTween("d", arcTween);
 
-    // Append text labels
-    arc
-      .append('text')
-      .attr('text-anchor', 'middle')
-      .attr('alignment-baseline', 'middle')
-      .text((d) => d.data.value)
-      .style('fill', 'white')
-      .attr('transform', (d) => {
-        const [x, y] = arcGenerator.centroid(d);
-        return `translate(${x}, ${y})`;
-      });
+        const text = groupWithUpdate
+            .append("text")
+            .merge(groupWithData.select("text"));
 
-    //legend
-    var legend = svg.selectAll() 
-      .data(colors.domain()) 
-      .enter()
-      .append('g') 
-      .attr('class', 'legend') 
-      .attr('transform', function (d, i) {
-        var vert = i * legendSpacing; 
-        return 'translate(' + legendHorizontal + ',' + vert + ')';     
-      });
+        text
+            .attr("text-anchor", "middle")
+            .attr("alignment-baseline", "middle")
+            .style("fill", "white")
+            .style("font-size", 15)
+            .transition()
+            .attr("transform", (d) => `translate(${createArc.centroid(d)})`)
+            .tween("text", (d, i, nodes) => {
+                const interpolator = d3.interpolate(prevData[i], d);
+                return (t) => d3.select(nodes[i]).text(format(interpolator(t).value));
+            });
 
-    // adding squares to legend
-    legend.append('rect')                                   
-      .attr('width', legendRectSize)                     
-      .attr('height', legendRectSize)                      
-      .style('fill', colors);
+        cache.current = data;
 
-    // adding text to legend
-    legend.append('text')
-      .attr('x', legendRectSize + 10)
-      .attr('y', legendRectSize - 10)
-      .text(function (d) { return d; }); 
+         //legend
+            var legend = group.selectAll() 
+            .data(colors.domain()) 
+            .enter()
+            .append('g') 
+            .attr('class', 'legend') 
+            .attr('transform', function (d, i) {
+            var vert = i * legendSpacing; 
+            return 'translate(' + legendHorizontal + ',' + vert + ')';     
+            });
 
-  }
+        // adding squares to legend
+        legend.append('circle')                                   
+            .attr('cx', legendRectSize)                     
+            .attr('cy', legendRectSize)
+            .attr("r",15)                      
+            .style('fill', colors);
 
-  return (<div id="piechart" />);
-}
+        // adding text to legend
+        legend.append('text')
+        .style("font-size", 15)
+            .attr('x', legendRectSize + 25)
+            .attr('y', legendRectSize + 5)
+            .text(function (d) { return d; }); 
+    }
+
+    useEffect(() => {
+        createChart();
+    }, [data]);
+
+    return (
+        <svg width={width} height={height}>
+            <g
+                ref={ref}
+                transform={`translate(${outerRadius + 150} ${outerRadius})`}
+            />
+        </svg>
+    );
+};
 
 export default PieChart;

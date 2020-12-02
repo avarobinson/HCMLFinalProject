@@ -3,7 +3,6 @@ import './App.css';
 import { Form, Col, Container, Row, Button, InputGroup } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import "./index.css";
-import Table from './components/TableComponent';
 import PieChart from './components/PieChartComponent';
 
 class App extends Component {

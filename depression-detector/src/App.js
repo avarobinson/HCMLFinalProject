@@ -149,11 +149,8 @@ class App extends Component {
           {this.state.errorMessage ? <p> Sorry, this twitter handle is invalid. Please enter a different twitter handle. </p> : userPercentage == "" ? null : (userPercentage == "-1" ? <p> Sorry, no tweets were found during this timeframe. Please select a different timeframe or twitter handle. </p> : <p> User's risk percentage: {userPercentage} %</p>)}
         </div>
         
-        <div className = "visualization"> 
         <PieChart results = {resultTable} />
-        <Table data={resultTable} columns={columns} />
         
-        </div>
       </Container>
     );
   }

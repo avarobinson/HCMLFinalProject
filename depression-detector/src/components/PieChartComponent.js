@@ -36,7 +36,7 @@ const PieChart = ({ results }) => {
         .outerRadius(outerRadius);
 
     const arcOver = d3.arc()
-        .outerRadius(outerRadius + 50)
+        .outerRadius(outerRadius + 20)
         .innerRadius(innerRadius);
 
     const format = d3.format(".2f");

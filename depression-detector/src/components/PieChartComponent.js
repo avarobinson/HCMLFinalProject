@@ -111,7 +111,6 @@ const PieChart = ({ results }) => {
                 .duration(1000)
                 .attr("transform", "rotate(" + (0) + ")");
 
-
         }
 
 
@@ -223,7 +222,9 @@ const PieChart = ({ results }) => {
                     <g className="square" />
                 </g>
             </svg>
-            {showTable ? <Table data={tableData} columns={columns} /> : null}
+            <div className = {showTable ? "fadeIn" : "fadeOut"}> 
+                <Table data={tableData} columns={columns} /> 
+            </div>
         </div>
     );
 };

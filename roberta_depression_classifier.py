@@ -48,6 +48,7 @@ def read_csv_split(split_dir):
     df['tweet'] = df['tweet'].apply(lambda x: x.encode('ascii', 'ignore').decode('ascii'))
     df["tweet"] = df["tweet"].str.lower()
     df['tweet'] = df['tweet'].apply(lambda x: re.split('https:\/\/.*', str(x))[0])
+    df['tweet'] = df['tweet'].apply(lambda x: re.split('http:\/\/.*', str(x))[0])
 
     texts = []
     labels = []

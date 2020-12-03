@@ -11,6 +11,23 @@ import json
 import numpy as np
 from transformers import RobertaTokenizer, RobertaForSequenceClassification
 import torch
+from pandas import DataFrame
+import re
+
+# import nltk
+# import ssl
+
+# try:
+#     _create_unverified_https_context = ssl._create_unverified_context
+# except AttributeError:
+#     pass
+# else:
+#     ssl._create_default_https_context = _create_unverified_https_context
+
+# nltk.download()
+# nltk.download(['punkt','stopwords'])
+# from nltk.corpus import stopwords
+# stopwords = stopwords.words('english')
 
 app = Flask(__name__)
 # CORS(app)
@@ -22,11 +39,15 @@ def scrape_and_predict():
     formData = request.json
     # 1. scrape data 
     tweets = user_data(formData)
+    print('scraped tweets', tweets)
     # 2. clean data 
     clean_tweets, original_tweets = clean_and_format_data(tweets)
+    print('origonal twweets', original_tweets[0].tweet)
+    print('clean tweeets', clean_tweets)
     # 3. run model
 
     predictions = predict(clean_tweets, original_tweets)
+    print('done predicting')
     return predictions
 
 
@@ -81,8 +102,19 @@ def clean_and_format_data(data):
     tweet_content = []
     for i in data:
         tweet_content.append(i.tweet)
-
-    return tweet_content, data
+    
+    df = DataFrame (tweet_content,columns=['tweet'])
+    # df['tweet'] = df['tweet'].apply(lambda x: ' '.join([item for item in x.split() if item not in stopwords]))
+    df['tweet'] = df['tweet'].apply(lambda x: x.encode('ascii', 'ignore').decode('ascii'))
+    df["tweet"] = df["tweet"].str.lower()
+    df['tweet'] = df['tweet'].apply(lambda x: re.split('https:\/\/.*', str(x))[0])
+    df['tweet'] = df['tweet'].apply(lambda x: re.split('http:\/\/.*', str(x))[0])
+    df_new = df[df['tweet'].notnull()]
+    users = df_new['tweet'].str.startswith('@')
+    df_new = df_new[~users].reset_index(drop=True)
+    
+    clean_tweet_content = df_new.values.tolist()
+    return clean_tweet_content, data
     
 def predict(modelData, originalData):
     """Run model on each tweet"""

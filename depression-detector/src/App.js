@@ -4,7 +4,7 @@ import { Form, Col, Container, Row, Button, InputGroup } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import "./index.css";
 import PieChart from './components/PieChartComponent';
-// import Axis from './components/LineChartComponent';
+import { LineChart, Line, CartesianGrid, XAxis, YAxis, Tooltip } from 'recharts';
 
 class App extends Component {
   constructor(props) {
@@ -76,28 +76,23 @@ class App extends Component {
   };
 
   render() {
+ 
     const formData = this.state.formData;
     const userPercentage = this.state.userPercentage;
 
     //data for breakdown table 
     const resultTable = this.state.resultTable;
-    const columns = [{
-      Header: "Tweet Assessment Breakdown",
-      columns: [
-        {
-          Header: "Time",
-          accessor: "time"
-        },
-        {
-          Header: "Tweet",
-          accessor: "tweet",
-          style: { 'whiteSpace': 'unset' }
-        },
-        {
-          Header: "Risk",
-          accessor: "risk"
-        }]
-    }];
+  
+
+const renderLineChart = (
+  <LineChart width={600} height={300} data={resultTable} margin={{ top: 5, right: 20, bottom: 5, left: 0 }}>
+    <Line type="monotone" dataKey="risk" stroke="#8884d8" />
+    <CartesianGrid stroke="#ccc" strokeDasharray="5 5" />
+    <XAxis dataKey="time" />
+    <YAxis />
+    <Tooltip />
+  </LineChart>
+);
 
     return (
       <Container>
@@ -150,8 +145,7 @@ class App extends Component {
         </div>
         
         <PieChart results = {resultTable} />
-        {/* <Axis/> */}
-        
+        {renderLineChart}
       </Container>
     );
   }

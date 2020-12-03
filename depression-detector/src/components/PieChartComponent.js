@@ -13,7 +13,7 @@ const PieChart = ({ results }) => {
     var outerRadius = 225;
     var innerRadius = 150;
 
-    const width = 3 * outerRadius;
+    const width = 3.5 * outerRadius;
     const height = 3 * outerRadius;
     const colors = d3.scaleOrdinal(d3.schemeCategory10);
 
@@ -36,7 +36,7 @@ const PieChart = ({ results }) => {
         .outerRadius(outerRadius);
 
     const arcOver = d3.arc()
-        .outerRadius(outerRadius + 20)
+        .outerRadius(outerRadius + 50)
         .innerRadius(innerRadius);
 
     const format = d3.format(".2f");
@@ -85,6 +85,11 @@ const PieChart = ({ results }) => {
             setChange(res[2]);
             setTable(true);
 
+            d3.select("g.chart")
+            .transition()
+            .duration(1000)
+            .attr("transform", "translate(" + (outerRadius + 200) + " " + (outerRadius + 50) + ")");
+
             d3.select(i)
                 .transition()
                 .duration(1000)
@@ -100,6 +105,11 @@ const PieChart = ({ results }) => {
             setTable(false);
             setData([]);
             setChange("");
+
+            d3.select("g.chart")
+            .transition()
+            .duration(1000)
+            .attr("transform", "translate(" + (outerRadius + 325) + " " + (outerRadius + 50) + ")");
 
             d3.select(i)
                 .transition()
@@ -218,7 +228,7 @@ const PieChart = ({ results }) => {
     return (
         <div className="visualization">
             <svg width={width} height={height}>
-                <g ref={ref} transform={`translate(${outerRadius + 150} ${outerRadius + 50})`}  >
+                <g className = "chart" ref={ref} transform={`translate(${outerRadius + 325} ${outerRadius + 50})`}  >
                     <g className="square" />
                 </g>
             </svg>

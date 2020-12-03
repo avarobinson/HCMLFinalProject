@@ -19,6 +19,7 @@
         "react-table-6": "^6.11.0",
         "react-table-scrollbar": "^0.1.9",
         "reactstrap": "^8.7.1",
+        "recharts": "^1.8.5",
         "web-vitals": "^0.2.4"
     },
     "scripts": {

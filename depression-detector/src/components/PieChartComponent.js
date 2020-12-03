@@ -10,17 +10,12 @@ const PieChart = ({ results }) => {
     var data = reorganizeData(results);
 
     //pie chart variables 
-    var outerRadius = 225;
+    var outerRadius = 200;
     var innerRadius = 150;
 
     const width = 3.5 * outerRadius;
     const height = 3 * outerRadius;
-    const colors = d3.scaleOrdinal(d3.schemeCategory10);
-
-    // legend dimensions
-    var legendRectSize = 10;
-    var legendHorizontal = -325;
-    var legendSpacing = 50;
+    const colors = d3.scaleOrdinal().range(["#8884d8", "#8884d8"]);
 
     const ref = useRef(null);
     const cache = useRef(data);
@@ -28,7 +23,8 @@ const PieChart = ({ results }) => {
     const createPie = d3
         .pie()
         .value((d) => d.value)
-        .sort(null);
+        .sort(null)
+        .padAngle(.02);;
 
     const createArc = d3
         .arc()
@@ -79,20 +75,28 @@ const PieChart = ({ results }) => {
         if (prevTable !== res[2]) {
             if (res[2] === "risk") {
                 setData(data[0].array);
+      
             } else {
                 setData(data[1].array);
+               
             }
             setChange(res[2]);
             setTable(true);
+            d3.select("text.center")
+                .text(res[2] + ": " + res[3] + "%")
+                .style("font-size", 25)
+                .style("fill", "#5a56bf")
+                .attr("transform", "rotate(" + (360 - angle) + ")");
 
             d3.select("g.chart")
-            .transition()
-            .duration(1000)
-            .attr("transform", "translate(" + (outerRadius + 200) + " " + (outerRadius + 50) + ")");
+                .transition()
+                .duration(1000)
+                .attr("transform", "translate(" + (outerRadius + 200) + " " + (outerRadius + 50) + ")");
 
             d3.select(i)
                 .transition()
                 .duration(1000)
+                .attr("fill", "#5a56bf")
                 .attr("d", arcOver);
 
             d3.select("g.square")
@@ -107,13 +111,14 @@ const PieChart = ({ results }) => {
             setChange("");
 
             d3.select("g.chart")
-            .transition()
-            .duration(1000)
-            .attr("transform", "translate(" + (outerRadius + 325) + " " + (outerRadius + 50) + ")");
+                .transition()
+                .duration(1000)
+                .attr("transform", "translate(" + (outerRadius + 250) + " " + (outerRadius + 50) + ")");
 
             d3.select(i)
                 .transition()
                 .duration(1000)
+                .attr("fill", "#8884D7")
                 .attr("d", createArc);
 
             d3.select("g.square")
@@ -135,9 +140,9 @@ const PieChart = ({ results }) => {
         const group = d3.select(ref.current);
         const square = d3.select("g.square");
         const groupWithData = square.selectAll("g.arc").data(pie);
-
+        d3.selectAll("text.center").remove(); //square.selectAll("text.center").remove();
         groupWithData.exit().remove();
-        d3.selectAll("g.legend").remove();
+        
 
         const groupWithUpdate = groupWithData
             .enter()
@@ -161,53 +166,20 @@ const PieChart = ({ results }) => {
         path
             .transition().duration(1000)
             .attr("class", "arc")
-            .attr("id", (d) => [d.startAngle, d.endAngle, d.data.label])
+            .attr("id", (d) => [d.startAngle, d.endAngle, d.data.label, d.data.value])
             .attr("value", (d) => d.startAngle)
             .attr("fill", (d) => colors(d.data.label))
             .attrTween("d", arcTween)
 
-        const text = groupWithUpdate
+        const center = d3.select("g.square")
             .append("text")
-            .merge(groupWithData.select("text"));
-
-        text
             .attr("text-anchor", "middle")
-            .attr("alignment-baseline", "middle")
-            .style("fill", "white")
-            .style("font-size", 15)
-            .transition()
-            .attr("transform", (d) => `translate(${createArc.centroid(d)})`)
-            .tween("text", (d, i, nodes) => {
-                const interpolator = d3.interpolate(prevData[i], d);
-                return (t) => d3.select(nodes[i]).text(format(interpolator(t).value));
-            });
+            .style("fill", "gray")
+            .style("font-size", 10)
+            .text("click an arc to learn more");
 
+        center.attr("class", "center")
         cache.current = data;
-
-        //legend
-        var legend = group.selectAll()
-            .data(colors.domain())
-            .enter()
-            .append('g')
-            .attr('class', 'legend')
-            .attr('transform', function (d, i) {
-                var vert = i * legendSpacing;
-                return 'translate(' + legendHorizontal + ',' + vert + ')';
-            });
-
-        // adding squares to legend
-        legend.append('circle')
-            .attr('cx', legendRectSize)
-            .attr('cy', legendRectSize)
-            .attr("r", 15)
-            .style('fill', colors);
-
-        // adding text to legend
-        legend.append('text')
-            .style("font-size", 15)
-            .attr('x', legendRectSize + 25)
-            .attr('y', legendRectSize + 5)
-            .text(function (d) { return d; });
     });
 
     const columns = [{
@@ -230,20 +202,17 @@ const PieChart = ({ results }) => {
     }];
 
     return (
-        <div> 
-               <p> click on each arc to learn more</p>
         <div className="visualization">
-      
+
             <svg width={width} height={height}>
-         
-                <g className = "chart" ref={ref} transform={`translate(${outerRadius + 325} ${outerRadius + 50})`}  >
+
+                <g className="chart" ref={ref} transform={`translate(${outerRadius + 250} ${outerRadius + 50})`}  >
                     <g className="square" />
                 </g>
             </svg>
-            <div className = {showTable ? "fadeIn" : "fadeOut"}> 
-                <Table data={tableData} columns={columns} /> 
+            <div className={showTable ? "fadeIn" : "fadeOut"}>
+                <Table data={tableData} columns={columns} />
             </div>
-        </div>
         </div>
     );
 };

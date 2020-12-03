@@ -88,41 +88,13 @@ input {
     flex-direction: row;
 }
 
-
-/* .tweetTable {
-    opacity: 1;
-    animation-name: fadeInOpacity;
-    animation-iteration-count: 1;
-    animation-timing-function: ease-in;
-    animation-duration: 3s;
-}
-
-@keyframes fadeInOpacity {
-    0% {
-        opacity: 0;
-    }
-    100% {
-        opacity: 1;
-    }
-} */
-
-
-/* .tweetTable {
-    opacity: 1;
-}
-
-.tweetTable:target {
-    -webkit-transition: opacity 2.0s ease-in;
-    -moz-transition: opacity 2.0s ease-in;
-    -o-transition: opacity 2.0s ease-in;
-    opacity: 1;
-} */
-
 .fadeOut {
     opacity: 0;
     width: 0;
     height: 0;
     transition: width 0.5s 0.5s, height 0.5s 0.5s, opacity 0.5s;
+    padding: 30px;
+    width: 200px;
 }
 
 .fadeIn {
@@ -130,4 +102,6 @@ input {
     width: 100px;
     height: 100px;
     transition: width 0.5s, height 0.5s, opacity 0.5s 0.5s;
+    padding: 30px;
+    width: 200px;
 }

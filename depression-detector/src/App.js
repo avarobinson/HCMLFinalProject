@@ -4,6 +4,7 @@ import { Form, Col, Container, Row, Button, InputGroup } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import "./index.css";
 import PieChart from './components/PieChartComponent';
+// import Axis from './components/LineChartComponent';
 
 class App extends Component {
   constructor(props) {
@@ -149,6 +150,7 @@ class App extends Component {
         </div>
         
         <PieChart results = {resultTable} />
+        {/* <Axis/> */}
         
       </Container>
     );

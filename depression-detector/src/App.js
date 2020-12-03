@@ -5,7 +5,6 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import "./index.css";
 import PieChart from './components/PieChartComponent';
 import Timeline from './components/TimelineComponent';
-// import PieChart2 from './components/PieChart2Component';
 
 class App extends Component {
   constructor(props) {
@@ -37,7 +36,8 @@ class App extends Component {
     formValid = ( (name == "username" && value != "") || this.state.formData.username != "") ? true : false;
     this.setState({
       formData,
-      formValid
+      formValid,
+      resultTable: []
     });
   }
 
@@ -131,10 +131,8 @@ class App extends Component {
 
           {this.state.errorMessage ? <p> Sorry, this twitter handle is invalid. Please enter a different twitter handle. </p> : userPercentage == "" ? null : (userPercentage == "-1" ? <p> Sorry, no tweets were found during this timeframe. Please select a different timeframe or twitter handle. </p> : <p> User's risk percentage: {userPercentage} %</p>)}
         </div>
-        
+        <Timeline results = {resultTable} timeframe = {this.state.formData["timeframe"]} />
         <PieChart results = {resultTable} />
-        <Timeline results = {resultTable} />
-        {/* <PieChart2/> */}
       </Container>
     );
   }

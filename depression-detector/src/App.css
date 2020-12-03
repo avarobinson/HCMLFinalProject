@@ -105,3 +105,28 @@ input {
     padding: 30px;
     width: 200px;
 }
+
+.custom-tooltip {
+    background-color: white;
+    border: 1px solid;
+    border-radius: 5px;
+    border-color: #CCCCCC;
+    padding-left: 15px;
+    padding-right: 15px;
+    padding-top: 5px;
+    height: 125px;
+    color: gray;
+}
+
+.label {
+    color: #8884d8;
+}
+
+.test {
+    opacity: 1;
+    width: 100px;
+    height: 100px;
+    transition: width 0.5s, height 0.5s, opacity 0.5s 0.5s;
+    padding: 30px;
+    width: 200px;
+}

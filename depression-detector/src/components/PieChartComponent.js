@@ -230,8 +230,12 @@ const PieChart = ({ results }) => {
     }];
 
     return (
+        <div> 
+               <p> click on each arc to learn more</p>
         <div className="visualization">
+      
             <svg width={width} height={height}>
+         
                 <g className = "chart" ref={ref} transform={`translate(${outerRadius + 325} ${outerRadius + 50})`}  >
                     <g className="square" />
                 </g>
@@ -239,6 +243,7 @@ const PieChart = ({ results }) => {
             <div className = {showTable ? "fadeIn" : "fadeOut"}> 
                 <Table data={tableData} columns={columns} /> 
             </div>
+        </div>
         </div>
     );
 };

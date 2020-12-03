@@ -4,7 +4,8 @@ import { Form, Col, Container, Row, Button, InputGroup } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import "./index.css";
 import PieChart from './components/PieChartComponent';
-import { LineChart, Line, CartesianGrid, XAxis, YAxis, Tooltip } from 'recharts';
+import Timeline from './components/TimelineComponent';
+// import PieChart2 from './components/PieChart2Component';
 
 class App extends Component {
   constructor(props) {
@@ -80,17 +81,6 @@ class App extends Component {
 
     //data for breakdown table 
     const resultTable = this.state.resultTable;
-  
-
-const renderLineChart = (
-  <LineChart width={600} height={300} data={resultTable} margin={{ top: 5, right: 20, bottom: 5, left: 0 }}>
-    <Line type="monotone" dataKey="risk" stroke="#8884d8" />
-    <CartesianGrid stroke="#ccc" strokeDasharray="5 5" />
-    <XAxis dataKey="time" />
-    <YAxis />
-    <Tooltip />
-  </LineChart>
-);
 
     return (
       <Container>
@@ -143,7 +133,8 @@ const renderLineChart = (
         </div>
         
         <PieChart results = {resultTable} />
-        {renderLineChart}
+        <Timeline results = {resultTable} />
+        {/* <PieChart2/> */}
       </Container>
     );
   }

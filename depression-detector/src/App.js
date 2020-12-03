@@ -14,11 +14,17 @@ class App extends Component {
       formValid: false,
       userPercentage: "",
       resultTable: [],
+      piechartData: [],
       formData: {
         username: '',
         timeframe: 'pastweek',
       },
-      errorMessage: ''
+      errorMessage: '',
+      filterData: {
+        startDate: '',
+        endDate: '',
+      },
+
     };
   }
 
@@ -33,7 +39,7 @@ class App extends Component {
 
     //makes sure user entered something in twitter handle (or else they can't hit submit)
     var formValid = this.state.formValid;
-    formValid = ( (name == "username" && value != "") || this.state.formData.username != "") ? true : false;
+    formValid = ((name == "username" && value != "") || this.state.formData.username != "") ? true : false;
     this.setState({
       formData,
       formValid,
@@ -41,13 +47,52 @@ class App extends Component {
     });
   }
 
+  handleFilter = (event) =>{
+    const value = event.target.value;
+    const name = event.target.name;
+    var filterData = this.state.filterData;
+    filterData[name] = value;
+    
+    this.setState({
+      filterData
+    });
+
+    console.log("data");
+    console.log(this.state.filterData);
+
+    var piechartData = this.state.piechartData;
+    piechartData = this.state.resultTable;
+    piechartData.sort((a, b) => (a.date > b.date) ? 1 : -1)
+    var newData = [];
+
+    var start = (this.state.filterData.startDate === '') ? piechartData[0].date  : this.state.filterData.startDate;
+    console.log("end");
+    console.log(this.state.filterData.endDate === '');
+    var end = (this.state.filterData.endDate === '') ? piechartData[piechartData.length - 1].date  : this.state.filterData.endDate;
+    console.log(end);
+    var i;
+    for(i = 0; i < piechartData.length; i++){
+      if(piechartData[i].date >= start && piechartData[i].date <= end){
+        newData.push(piechartData[i]);
+      }
+    }
+    console.log(newData);
+    piechartData = newData;
+    this.setState({ piechartData});
+    console.log("rach");
+
+
+  }
+
+ 
+
   //resets data when user clicks reset button
   resetData = (event) => {
     this.setState({
       formData: {
         username: '',
         timeframe: 'pastweek',
-      }, userPercentage: "", resultTable: [], errorMessage:""
+      }, userPercentage: "", resultTable: [], errorMessage: "", piechartData: ""
     });
   }
 
@@ -55,7 +100,7 @@ class App extends Component {
   //sends data to flask api as a post request when user hits the predict button
   sendData = () => {
     const formData = this.state.formData;
-    this.setState({errorMessage: ""});
+    this.setState({ errorMessage: "" });
     fetch('/api/v1', {
       headers: {
         'Accept': 'application/json',
@@ -66,7 +111,7 @@ class App extends Component {
     }
     ).then(res => res.json()).then(data => {
       //updates percentage & breakdown table 
-      this.setState({ userPercentage: data.percentage, resultTable: data.table });
+      this.setState({ userPercentage: data.percentage, resultTable: data.table, piechartData: data.table });
     }).catch((error) => {
       //notifies user that they submitted an invalid twitter handle 
       this.setState({ errorMessage: error.message })
@@ -75,7 +120,10 @@ class App extends Component {
   };
 
   render() {
- 
+    console.log("henlo");
+    const filterData = this.state.piechartData;
+
+    console.log(filterData);
     const formData = this.state.formData;
     const userPercentage = this.state.userPercentage;
 
@@ -131,8 +179,23 @@ class App extends Component {
 
           {this.state.errorMessage ? <p> Sorry, this twitter handle is invalid. Please enter a different twitter handle. </p> : userPercentage == "" ? null : (userPercentage == "-1" ? <p> Sorry, no tweets were found during this timeframe. Please select a different timeframe or twitter handle. </p> : <p> User's risk percentage: {userPercentage} %</p>)}
         </div>
-        <Timeline results = {resultTable} timeframe = {this.state.formData["timeframe"]} />
-        <PieChart results = {resultTable} />
+        <Timeline results={resultTable} timeframe={this.state.formData["timeframe"]} />
+
+        <div>
+          {(resultTable.length === 0) ? null :
+            <Row>
+              <Col>
+                <label for="startDate">start date:</label>
+                <input type="date" id="startDate" name="startDate" onChange={this.handleFilter}></input>
+              </Col>
+              <Col>
+                <label for="endDate">end date:</label>
+                <input type="date" id="endDate" name="endDate" onChange={this.handleFilter}></input>
+              </Col>
+            </Row>
+          }
+          <PieChart results={filterData} />
+        </div>
       </Container>
     );
   }

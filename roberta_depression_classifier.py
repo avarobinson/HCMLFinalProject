@@ -49,7 +49,8 @@ def read_csv_split(split_dir):
     df["tweet"] = df["tweet"].str.lower()
     df['tweet'] = df['tweet'].apply(lambda x: re.split('https:\/\/.*', str(x))[0])
     df['tweet'] = df['tweet'].apply(lambda x: re.split('http:\/\/.*', str(x))[0])
-
+    #TODO: add in script to remove tags 
+    
     texts = []
     labels = []
     # this may change slightly depending on what the dataset looks like

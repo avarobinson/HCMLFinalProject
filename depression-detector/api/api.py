@@ -39,15 +39,15 @@ def scrape_and_predict():
     formData = request.json
     # 1. scrape data 
     tweets = user_data(formData)
-    print('scraped tweets', tweets)
+    # print('scraped tweets', tweets)
     # 2. clean data 
     clean_tweets, original_tweets = clean_and_format_data(tweets)
-    print('origonal twweets', original_tweets[0].tweet)
-    print('clean tweeets', clean_tweets)
+    # print('origonal twweets', original_tweets[0].tweet)
+    # print('clean tweeets', clean_tweets)
     # 3. run model
 
     predictions = predict(clean_tweets, original_tweets)
-    print('done predicting')
+    # print('done predicting')
     return predictions
 
 
@@ -104,6 +104,8 @@ def clean_and_format_data(data):
         tweet_content.append(i.tweet)
     
     df = DataFrame (tweet_content,columns=['tweet'])
+    #TODO:fix stopwords resource to allow for removal 
+    #TODO: if tweets are completely removed, they also need to be removed from "data" - should not be considered at all
     # df['tweet'] = df['tweet'].apply(lambda x: ' '.join([item for item in x.split() if item not in stopwords]))
     df['tweet'] = df['tweet'].apply(lambda x: x.encode('ascii', 'ignore').decode('ascii'))
     df["tweet"] = df["tweet"].str.lower()
@@ -114,6 +116,10 @@ def clean_and_format_data(data):
     df_new = df_new[~users].reset_index(drop=True)
     
     clean_tweet_content = df_new.values.tolist()
+    
+    # TODO: make orig data match up with removed tweets
+    df_orig_data = DataFrame (data,columns=['tweet'])
+    print('clean vs. orig', len(clean_tweet_content), len(data))
     return clean_tweet_content, data
     
 def predict(modelData, originalData):

@@ -43,20 +43,20 @@ const Timeline = ({ results, timeframe }) => {
         startYear++;
       }
     }
-    for (i = 0; i < data.length; i++) {
-      var date = data[i].date.split("-");
-      var test = parseInt(date[1])
+    // for (i = 0; i < data.length; i++) {
+    //   var date = data[i].date.split("-");
+    //   var test = parseInt(date[1])
 
-      var currNum = (test === 12) ? 3 : Math.floor(test / 3);
-      var currMonth = season[currNum] + " " + date[0];
+    //   var currNum = (test === 12) ? 3 : Math.floor(test / 3);
+    //   var currMonth = season[currNum] + " " + date[0];
 
-      var index = dateTracker.indexOf(currMonth);
+    //   var index = dateTracker.indexOf(currMonth);
 
-      dateArray[index].total++;
-      dateArray[index].risk += data[i].risk;
-    }
+    //   dateArray[index].total++;
+    //   dateArray[index].risk += data[i].risk;
+    // }
 
-    return dateArray;
+    return [dateArray, dateTracker, "season"];
   }
 
   function groupByMonth(data) {
@@ -86,21 +86,8 @@ const Timeline = ({ results, timeframe }) => {
         dateTracker.push(month[i % 12] + " " + startYear);
       }
     }
-
-    for (i = 0; i < data.length; i++) {
-      var date = data[i].date.split("-");
-      var currMonth = month[parseInt(date[1])] + " " + date[0];
-
-      var index = dateTracker.indexOf(currMonth);
-
-      dateArray[index].total++;
-      dateArray[index].risk += data[i].risk;
-
-    }
-
-    return dateArray;
+    return [dateArray, dateTracker, "month"];
   }
-
 
   function groupByDate(data) {
     var thirty = [1, 3, 5, 7, 8, 10, 12];
@@ -129,32 +116,28 @@ const Timeline = ({ results, timeframe }) => {
       }
       lastStart += endDay;
     }
-
-    var i;
-    for (i = 0; i <= lastStart; i++) {
+    if(lastStart === 0){
       dateArray.push({ date: month[startMonth] + " " + startDay, risk: 0, total: 0, percent: 0 });
       dateTracker.push(month[startMonth] + " " + startDay);
-      startDay++;
-      var end1 = (startDay === 30 && thirty.indexOf(startMonth) !== -1);
-      var end2 = (startDay === 31 && thirtyone.indexOf(startMonth) !== -1);
-      var end3 = (startDay === 29 && startMonth === 2 && leap.indexOf(startYear) !== -1);
-      var end4 = (startDay === 28 && startMonth === 2 && leap.indexOf(startYear) === -1);
+    }else{
+      var i;
+      for (i = 0; i < lastStart; i++) {
+        dateArray.push({ date: month[startMonth] + " " + startDay, risk: 0, total: 0, percent: 0 });
+        dateTracker.push(month[startMonth] + " " + startDay);
+        startDay++;
+        var end1 = (startDay === 30 && thirty.indexOf(startMonth) !== -1);
+        var end2 = (startDay === 31 && thirtyone.indexOf(startMonth) !== -1);
+        var end3 = (startDay === 29 && startMonth === 2 && leap.indexOf(startYear) !== -1);
+        var end4 = (startDay === 28 && startMonth === 2 && leap.indexOf(startYear) === -1);
 
-      if (end1 || end2 || end3 || end4) {
-        startMonth = (startMonth === 12 ? 1 : startMonth + 1);
-        startDay = 1;
+        if (end1 || end2 || end3 || end4) {
+          startMonth = (startMonth === 12 ? 1 : startMonth + 1);
+          startDay = 1;
+        }
       }
     }
 
-    for (i = 0; i < data.length; i++) {
-      var date = data[i].date.split("-");
-      var currMonth = month[parseInt(date[1])] + " " + parseInt(date[2]);
-      var index = dateTracker.indexOf(currMonth);
-      dateArray[index].total++;
-      dateArray[index].risk += data[i].risk;
-    }
-
-    return dateArray;
+    return [dateArray, dateTracker, "date"];
   }
 
   function reorganizeData(results) {
@@ -168,16 +151,44 @@ const Timeline = ({ results, timeframe }) => {
         array = groupByDate(results);
       }
 
+     var data = array[0];
+      var dateTracker = array[1];
+      var type = array[2];
       var i;
-      for (i = 0; i < array.length; i++) {
-        if (array[i].total === 0) {
-          array[i] = { date: array[i].date };
-        } else {
-          array[i].percent = ((array[i].risk * 100) / (array[i].total)).toFixed(2);
+
+      console.log(results);
+      for (i = 0; i < results.length; i++) {
+        var date = results[i].date.split("-");
+        console.log(date);
+        var value = "";
+        var index = 0;
+
+        if(type === "date"){
+           value = month[parseInt(date[1])] + " " + parseInt(date[2]);
+        }else if(type === "month"){
+          value  = month[parseInt(date[1])] + " " + date[0];
+        }else if(type === "season"){
+          var test = parseInt(date[1])
+          var currNum = (test === 12) ? 3 : Math.floor(test / 3);
+          value = season[currNum] + " " + date[0];
         }
+      
+        index = dateTracker.indexOf(value);
+        data[index].total++;
+        data[index].risk += results[i].risk;
       }
 
-      return array;
+
+      for (i = 0; i < data.length; i++) {
+        if (data[i].total === 0) {
+          data[i] = { date: data[i].date };
+        } else {
+          data[i].percent = ((data[i].risk * 100) / (data[i].total)).toFixed(2);
+        }
+      }
+      console.log(data);
+
+      return data;
     }
   }
 

@@ -23,9 +23,10 @@ def scrape_and_predict():
     # 1. scrape data 
     tweets = user_data(formData)
     # 2. clean data 
-    clean_tweets = clean_and_format_data(tweets)
+    clean_tweets, original_tweets = clean_and_format_data(tweets)
     # 3. run model
-    predictions = predict(clean_tweets, tweets)
+
+    predictions = predict(clean_tweets, original_tweets)
     return predictions
 
 
@@ -73,13 +74,15 @@ def user_data(formData):
 def clean_and_format_data(data):
     #TODO: integrate Ellie's scripts for cleaning data and prep for model
     #TODO: add in split csv script
-    
+    #TODO: when a element in the array is deleted in the clean data, delete in original data also
+    # Note: second return value (currently "data") would be the og tweet content 
+
     # creates an array of tweet content only
     tweet_content = []
     for i in data:
         tweet_content.append(i.tweet)
 
-    return tweet_content
+    return tweet_content, data
     
 def predict(modelData, originalData):
     """Run model on each tweet"""
@@ -96,14 +99,16 @@ def predict(modelData, originalData):
     
     # additional data for visualizations (original tweet content & times )
     tweet_content = []
+    tweet_dates = []
     tweet_times = []
     for i in originalData:
         tweet_content.append(i.tweet)
-        tweet_times.append(i.datetime)
+        tweet_dates.append(i.datestamp)
+        tweet_times.append(i.timestamp)
 
     # turns given tweets, times, and results into a list of objects used for the data table
-    resultTable = [{"tweet": t, "time": d, "risk": r}
-                   for t, d, r in zip(tweet_content, tweet_times, predictions)]
+    resultTable = [{"tweet": c, "date": d, "time": t, "risk": r}
+                   for c, d, t, r in zip(tweet_content, tweet_dates, tweet_times, predictions)]
 
     #calculating risk percentage based on results 
     if len(predictions) != 0:
@@ -112,7 +117,7 @@ def predict(modelData, originalData):
         percentage = -1
 
     # return all_tweets
-    return jsonify({'tweets': tweet_content, 'results': predictions, 'percentage': percentage, 'table': resultTable})
+    return jsonify({'percentage': percentage, 'table': resultTable})
 
 
 def predict_tweet(tweet, model, tokenizer):

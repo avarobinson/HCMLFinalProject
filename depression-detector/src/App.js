@@ -12,8 +12,6 @@ class App extends Component {
 
     this.state = {
       formValid: false,
-      userTweets: "",
-      userResults: "",
       userPercentage: "",
       resultTable: [],
       formData: {
@@ -48,7 +46,7 @@ class App extends Component {
       formData: {
         username: '',
         timeframe: 'pastweek',
-      }, userTweets: "", userResults: "", userPercentage: "", resultTable: [], errorMessage:""
+      }, userPercentage: "", resultTable: [], errorMessage:""
     });
   }
 
@@ -67,7 +65,7 @@ class App extends Component {
     }
     ).then(res => res.json()).then(data => {
       //updates percentage & breakdown table 
-      this.setState({ userTweets: data.tweets, userResults: data.results, userPercentage: data.percentage, resultTable: data.table });
+      this.setState({ userPercentage: data.percentage, resultTable: data.table });
     }).catch((error) => {
       //notifies user that they submitted an invalid twitter handle 
       this.setState({ errorMessage: error.message })

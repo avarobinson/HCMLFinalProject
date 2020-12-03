@@ -53,9 +53,9 @@ const PieChart = ({ results }) => {
         var i;
         for (i = 0; i < results.length; i++) {
             if (results[i].risk === 0) { //checks risk assigned and divides given tweets into risk or not-risk groups
-                noRiskTweets.push({ tweet: results[i].tweet, time: results[i].time });
+                noRiskTweets.push({ tweet: results[i].tweet, date: results[i].date, time: results[i].time });
             } else {
-                riskTweets.push({ tweet: results[i].tweet, time: results[i].time });
+                riskTweets.push({ tweet: results[i].tweet, date: results[i].date, time: results[i].time });
             }
         }
         var risk = (riskTweets.length * 100) / results.length;
@@ -213,6 +213,10 @@ const PieChart = ({ results }) => {
     const columns = [{
         Header: "Tweet Assessment Breakdown",
         columns: [
+            {
+                Header: "Date",
+                accessor: "date"
+            },
             {
                 Header: "Time",
                 accessor: "time"

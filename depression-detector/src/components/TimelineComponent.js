@@ -1,9 +1,10 @@
-import React, { Component, useEffect, useRef, useState } from "react";
+import React from "react";
 import '../App.css';
-import { AreaChart, Area, LineChart, Line, CartesianGrid, XAxis, YAxis, Tooltip } from 'recharts';
+import { AreaChart, Area, CartesianGrid, XAxis, YAxis, Tooltip } from 'recharts';
 
+
+//custom tooltip to show data when hovering over points 
 function CustomTooltip({ payload, active }) {
-
   if (active && payload.length !== 0) {
     return (
       <div className="custom-tooltip">
@@ -13,7 +14,6 @@ function CustomTooltip({ payload, active }) {
       </div>
     );
   }
-
   return null;
 }
 
@@ -49,7 +49,7 @@ const Timeline = ({ results, timeframe }) => {
     var startYear = parseInt(start.year);
     var numSeasons = (endSeason - startSeason) + (4 * (parseInt(end.year) - parseInt(start.year)));
 
-    if(numSeasons > 20){
+    if (numSeasons > 20) {
       return groupByYear(data, start, end);
     }
 
@@ -101,7 +101,7 @@ const Timeline = ({ results, timeframe }) => {
     var leap = [2008, 2012, 2016, 2020];
 
     data.sort((a, b) => (a.date > b.date) ? 1 : -1)
-    
+
     var timeline_data = [];
     var template = [];
 
@@ -122,11 +122,11 @@ const Timeline = ({ results, timeframe }) => {
       }
       numDays += endDay;
     }
-    
-    if(numDays === 0){ //corner case if we are only given one date 
+
+    if (numDays === 0) { //corner case if we are only given one date 
       timeline_data.push({ date: month[startMonth] + " " + startDay, risk: 0, total: 0, percent: 0 });
       template.push(month[startMonth] + " " + startDay);
-    }else{
+    } else {
       var i;
       for (i = 0; i < numDays; i++) {
         timeline_data.push({ date: month[startMonth] + " " + startDay, risk: 0, total: 0, percent: 0 });
@@ -138,7 +138,7 @@ const Timeline = ({ results, timeframe }) => {
         var end4 = (startDay === 28 && startMonth === 2 && leap.indexOf(startYear) === -1);
 
         //checks if it is time to move on to the next month 
-        if (end1 || end2 || end3 || end4) { 
+        if (end1 || end2 || end3 || end4) {
           startMonth = (startMonth === 12 ? 1 : startMonth + 1);
           startDay = 1;
         }
@@ -148,25 +148,24 @@ const Timeline = ({ results, timeframe }) => {
     return [timeline_data, template, "date"];
   }
 
-
+  //helper function that reorganizes the data - decides how the data should be aggregated 
   function reorganizeData(results) {
     if (results.length === 0) {
       return results;
     } else {
       results.sort((a, b) => (a.date > b.date) ? 1 : -1)
-   
+
       var array = [];
       const start = { year: (results[0].date.split("-")[0]), month: (results[0].date.split("-")[1]), date: (results[0].date.split("-")[2]) };
       const end = { year: (results[results.length - 1].date.split("-")[0]), month: (results[results.length - 1].date.split("-")[1]), date: (results[results.length - 1].date.split("-")[2]) };
-      
+
       if (timeframe === "past year" || timeframe === "all time") {
         array = groupByMonth(results, start, end);
       } else {
         array = groupByDate(results, start, end);
       }
 
-
-     var data = array[0];
+      var data = array[0];
       var template = array[1];
       var type = array[2];
       var i;
@@ -176,15 +175,15 @@ const Timeline = ({ results, timeframe }) => {
         var value = "";
         var index = 0;
 
-        if(type === "date"){
-           value = month[parseInt(date[1])] + " " + parseInt(date[2]);
-        }else if(type === "month"){
-          value  = month[parseInt(date[1])] + " " + date[0];
-        }else if(type === "season"){
+        if (type === "date") {
+          value = month[parseInt(date[1])] + " " + parseInt(date[2]);
+        } else if (type === "month") {
+          value = month[parseInt(date[1])] + " " + date[0];
+        } else if (type === "season") {
           var test = parseInt(date[1])
           var currNum = (test === 12) ? 3 : Math.floor(test / 3);
           value = season[currNum] + " " + date[0];
-        }else{
+        } else {
           value = parseInt(date[0]);
         }
         index = template.indexOf(value);
@@ -199,12 +198,12 @@ const Timeline = ({ results, timeframe }) => {
           data[i].percent = ((data[i].risk * 100) / (data[i].total)).toFixed(2);
         }
       }
-  
 
-      return data; 
+      return data;
     }
   }
 
+  //data used to create the line chart 
   var data = reorganizeData(results);
 
   return (

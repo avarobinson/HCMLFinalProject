@@ -1,9 +1,10 @@
-import React, { Component, useEffect, useRef, useState } from "react";
+import React from "react";
 import '../App.css';
-import { AreaChart, Area, LineChart, Line, CartesianGrid, XAxis, YAxis, Tooltip } from 'recharts';
+import { AreaChart, Area, CartesianGrid, XAxis, YAxis, Tooltip } from 'recharts';
 
+
+//custom tooltip to show data when hovering over points 
 function CustomTooltip({ payload, active }) {
-
   if (active && payload.length !== 0) {
     return (
       <div className="custom-tooltip">
@@ -13,7 +14,6 @@ function CustomTooltip({ payload, active }) {
       </div>
     );
   }
-
   return null;
 }
 
@@ -21,166 +21,189 @@ const Timeline = ({ results, timeframe }) => {
   const month = ['', 'jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec'];
   const season = ["winter", "spring", "summer", "fall"];
 
-  function groupBySeason(data) {
+  //creates initial year-timespan, then aggregates data by year 
+  function groupByYear(data, start, end) {
     data.sort((a, b) => (a.date > b.date) ? 1 : -1)
-    const startDate = { year: (data[0].date.split("-")[0]), month: (data[0].date.split("-")[1]) };
-    const endDate = { year: (data[data.length - 1].date.split("-")[0]), month: (data[data.length - 1].date.split("-")[1]) };
 
-    var dateArray = [];
-    var dateTracker = [];
-    var startSeason = (parseInt(startDate.month) === 12) ? 3 : Math.floor(parseInt(startDate.month) / 3);
-    var endSeason = (parseInt(endDate.month) === 12) ? 3 : Math.floor(parseInt(endDate.month) / 3);
+    var timeline_data = [];
+    var template = [];
+    var startYear = parseInt(start.year);
+    var endYear = parseInt(end.year);
+    var i
+    for (i = startYear; i <= endYear; i++) {
+      timeline_data.push({ date: i, risk: 0, total: 0, percent: 0 });
+      template.push(i);
+    }
 
-    var startYear = parseInt(startDate.year);
+    return [timeline_data, template, "year"];
+  }
 
-    var numSeasons = (endSeason - startSeason) + (4 * (parseInt(endDate.year) - parseInt(startDate.year)));
+  //creates initial season-timespan, then aggregates data by season (dividing a year into 4 parts)
+  function groupBySeason(data, start, end) {
+    data.sort((a, b) => (a.date > b.date) ? 1 : -1)
+    var timeline_data = [];
+    var template = [];
+    var startSeason = (parseInt(start.month) === 12) ? 3 : Math.floor(parseInt(start.month) / 3);
+    var endSeason = (parseInt(end.month) === 12) ? 3 : Math.floor(parseInt(end.month) / 3);
+
+    var startYear = parseInt(start.year);
+    var numSeasons = (endSeason - startSeason) + (4 * (parseInt(end.year) - parseInt(start.year)));
+
+    if (numSeasons > 20) {
+      return groupByYear(data, start, end);
+    }
 
     var i
     for (i = startSeason; i <= (startSeason + numSeasons); i++) {
-      dateArray.push({ date: season[i % 4] + " " + startYear, risk: 0, total: 0, percent: 0 });
-      dateTracker.push(season[i % 4] + " " + startYear);
+      timeline_data.push({ date: season[i % 4] + " " + startYear, risk: 0, total: 0, percent: 0 });
+      template.push(season[i % 4] + " " + startYear);
       if (i % 4 === 0) {
         startYear++;
       }
     }
-    for (i = 0; i < data.length; i++) {
-      var date = data[i].date.split("-");
-      var test = parseInt(date[1])
-
-      var currNum = (test === 12) ? 3 : Math.floor(test / 3);
-      var currMonth = season[currNum] + " " + date[0];
-
-      var index = dateTracker.indexOf(currMonth);
-
-      dateArray[index].total++;
-      dateArray[index].risk += data[i].risk;
-    }
-
-    return dateArray;
+    return [timeline_data, template, "season"];
   }
 
-  function groupByMonth(data) {
+  //creates initial month-timespan, then aggregates data by month
+  function groupByMonth(data, start, end) {
 
     data.sort((a, b) => (a.date > b.date) ? 1 : -1)
-    const startDate = { year: (data[0].date.split("-")[0]), month: (data[0].date.split("-")[1]) };
-    const endDate = { year: (data[data.length - 1].date.split("-")[0]), month: (data[data.length - 1].date.split("-")[1]) };
-    var dateArray = [];
-    var dateTracker = [];
-    var startMonth = parseInt(startDate.month);
-    var startYear = parseInt(startDate.year);
+    var timeline_data = [];
+    var template = [];
+    var startMonth = parseInt(start.month);
+    var startYear = parseInt(start.year);
 
-    var numMonths = (parseInt(endDate.month) - parseInt(startDate.month)) + (12 * (parseInt(endDate.year) - parseInt(startDate.year)));
+    var numMonths = (parseInt(end.month) - parseInt(start.month)) + (12 * (parseInt(end.year) - parseInt(start.year)));
 
     if (numMonths > 16) {
-      return groupBySeason(data);
+      return groupBySeason(data, start, end);
     }
 
     var i
     for (i = startMonth; i <= (startMonth + numMonths); i++) {
       if (i % 12 === 0) {
-        dateArray.push({ date: month[12] + " " + startYear, risk: 0, total: 0, percent: 0 });
-        dateTracker.push(month[12] + " " + startYear);
+        timeline_data.push({ date: month[12] + " " + startYear, risk: 0, total: 0, percent: 0 });
+        template.push(month[12] + " " + startYear);
         startYear++;
       } else {
-        dateArray.push({ date: month[(i % 12)] + " " + startYear, risk: 0, total: 0, percent: 0 });
-        dateTracker.push(month[i % 12] + " " + startYear);
+        timeline_data.push({ date: month[(i % 12)] + " " + startYear, risk: 0, total: 0, percent: 0 });
+        template.push(month[i % 12] + " " + startYear);
       }
     }
-
-    for (i = 0; i < data.length; i++) {
-      var date = data[i].date.split("-");
-      var currMonth = month[parseInt(date[1])] + " " + date[0];
-
-      var index = dateTracker.indexOf(currMonth);
-
-      dateArray[index].total++;
-      dateArray[index].risk += data[i].risk;
-
-    }
-
-    return dateArray;
+    return [timeline_data, template, "month"];
   }
 
+  //creates initial timespan, then aggregates data by date
+  function groupByDate(data, start, end) {
 
-  function groupByDate(data) {
     var thirty = [1, 3, 5, 7, 8, 10, 12];
     var thirtyone = [4, 6, 9, 11];
     var leap = [2008, 2012, 2016, 2020];
 
     data.sort((a, b) => (a.date > b.date) ? 1 : -1)
-    const startDate = { date: (data[0].date.split("-")[2]), month: (data[0].date.split("-")[1]) };
-    const endDate = { date: (data[data.length - 1].date.split("-")[2]), month: (data[data.length - 1].date.split("-")[1]) };
-    var dateArray = [];
-    var dateTracker = [];
-    var startMonth = parseInt(startDate.month);
-    var startYear = parseInt(startDate.year);
-    var endMonth = parseInt(endDate.month);
 
-    var startDay = parseInt(startDate.date);
-    var endDay = parseInt(endDate.date);
-    var lastStart;
-    if (endMonth === startMonth) {
-      lastStart = endDay - startDay;
+    var timeline_data = [];
+    var template = [];
+
+    var startYear = parseInt(start.year);
+    var startMonth = parseInt(start.month);
+    var endMonth = parseInt(end.month);
+    var startDay = parseInt(start.date);
+    var endDay = parseInt(end.date);
+
+    var numDays;
+    if (endMonth === startMonth) { //if all the dates are within the same month 
+      numDays = endDay - startDay;
+    } else { //if the dates span throughout two months 
+      if (startMonth === 2) { //corner case for february (leap year)
+        numDays = (leap.indexOf(startYear) !== -1) ? (29 - startDay) : (28 - startDay);
+      } else { //calculating the number of days for a regular month 
+        numDays = (thirty.indexOf(startMonth) !== -1) ? (30 - startDay) : (31 - startDay);
+      }
+      numDays += endDay;
+    }
+
+    if (numDays === 0) { //corner case if we are only given one date 
+      timeline_data.push({ date: month[startMonth] + " " + startDay, risk: 0, total: 0, percent: 0 });
+      template.push(month[startMonth] + " " + startDay);
     } else {
-      if (startMonth === 2) {
-        lastStart = (leap.indexOf(startYear) !== -1) ? (29 - startDay) : (28 - startDay);
-      } else {
-        lastStart = (thirty.indexOf(startMonth) !== -1) ? (30 - startDay) : (31 - startDay);
-      }
-      lastStart += endDay;
-    }
+      var i;
+      for (i = 0; i < numDays; i++) {
+        timeline_data.push({ date: month[startMonth] + " " + startDay, risk: 0, total: 0, percent: 0 });
+        template.push(month[startMonth] + " " + startDay);
+        startDay++;
+        var end1 = (startDay === 30 && thirty.indexOf(startMonth) !== -1);
+        var end2 = (startDay === 31 && thirtyone.indexOf(startMonth) !== -1);
+        var end3 = (startDay === 29 && startMonth === 2 && leap.indexOf(startYear) !== -1);
+        var end4 = (startDay === 28 && startMonth === 2 && leap.indexOf(startYear) === -1);
 
-    var i;
-    for (i = 0; i <= lastStart; i++) {
-      dateArray.push({ date: month[startMonth] + " " + startDay, risk: 0, total: 0, percent: 0 });
-      dateTracker.push(month[startMonth] + " " + startDay);
-      startDay++;
-      var end1 = (startDay === 30 && thirty.indexOf(startMonth) !== -1);
-      var end2 = (startDay === 31 && thirtyone.indexOf(startMonth) !== -1);
-      var end3 = (startDay === 29 && startMonth === 2 && leap.indexOf(startYear) !== -1);
-      var end4 = (startDay === 28 && startMonth === 2 && leap.indexOf(startYear) === -1);
-
-      if (end1 || end2 || end3 || end4) {
-        startMonth = (startMonth === 12 ? 1 : startMonth + 1);
-        startDay = 1;
+        //checks if it is time to move on to the next month 
+        if (end1 || end2 || end3 || end4) {
+          startMonth = (startMonth === 12 ? 1 : startMonth + 1);
+          startDay = 1;
+        }
       }
     }
 
-    for (i = 0; i < data.length; i++) {
-      var date = data[i].date.split("-");
-      var currMonth = month[parseInt(date[1])] + " " + parseInt(date[2]);
-      var index = dateTracker.indexOf(currMonth);
-      dateArray[index].total++;
-      dateArray[index].risk += data[i].risk;
-    }
-
-    return dateArray;
+    return [timeline_data, template, "date"];
   }
 
+  //helper function that reorganizes the data - decides how the data should be aggregated 
   function reorganizeData(results) {
     if (results.length === 0) {
       return results;
     } else {
-      var array = []
+      results.sort((a, b) => (a.date > b.date) ? 1 : -1)
+
+      var array = [];
+      const start = { year: (results[0].date.split("-")[0]), month: (results[0].date.split("-")[1]), date: (results[0].date.split("-")[2]) };
+      const end = { year: (results[results.length - 1].date.split("-")[0]), month: (results[results.length - 1].date.split("-")[1]), date: (results[results.length - 1].date.split("-")[2]) };
+
       if (timeframe === "past year" || timeframe === "all time") {
-        array = groupByMonth(results);
+        array = groupByMonth(results, start, end);
       } else {
-        array = groupByDate(results);
+        array = groupByDate(results, start, end);
       }
 
+      var data = array[0];
+      var template = array[1];
+      var type = array[2];
       var i;
-      for (i = 0; i < array.length; i++) {
-        if (array[i].total === 0) {
-          array[i] = { date: array[i].date };
+
+      for (i = 0; i < results.length; i++) {
+        var date = results[i].date.split("-");
+        var value = "";
+        var index = 0;
+
+        if (type === "date") {
+          value = month[parseInt(date[1])] + " " + parseInt(date[2]);
+        } else if (type === "month") {
+          value = month[parseInt(date[1])] + " " + date[0];
+        } else if (type === "season") {
+          var test = parseInt(date[1])
+          var currNum = (test === 12) ? 3 : Math.floor(test / 3);
+          value = season[currNum] + " " + date[0];
         } else {
-          array[i].percent = ((array[i].risk * 100) / (array[i].total)).toFixed(2);
+          value = parseInt(date[0]);
+        }
+        index = template.indexOf(value);
+        data[index].total++;
+        data[index].risk += results[i].risk;
+      }
+
+      for (i = 0; i < data.length; i++) {
+        if (data[i].total === 0) {
+          data[i] = { date: data[i].date };
+        } else {
+          data[i].percent = ((data[i].risk * 100) / (data[i].total)).toFixed(2);
         }
       }
 
-      return array;
+      return data;
     }
   }
 
+  //data used to create the line chart 
   var data = reorganizeData(results);
 
   return (

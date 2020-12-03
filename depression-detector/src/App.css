@@ -124,6 +124,7 @@ input {
 }
 
 
+/* 
 /* .test {
     opacity: 1;
     width: 100px;
@@ -132,3 +133,7 @@ input {
     padding: 30px;
     width: 200px;
 } */
+
+.test {
+    z-index: 0;
+}

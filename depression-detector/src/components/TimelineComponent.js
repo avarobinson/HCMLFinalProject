@@ -207,11 +207,11 @@ const Timeline = ({ results, timeframe }) => {
   var data = reorganizeData(results);
 
   return (
-    <AreaChart width={1000} height={500} data={data} margin={{ top: 10, right: 20, bottom: 5, left: 0 }}>
+    <AreaChart width={1000} height={500} data={data} margin={{ top: 50, right: 20, bottom: 5, left: 0 }}>
       <Area connectNulls type="monotone" dataKey="percent" stroke="#8884d8" fill="#8884d8" fillOpacity={0.3} />
       <CartesianGrid stroke="#ccc" strokeDasharray="5 5" />
       <XAxis dataKey="date" />
-      <YAxis dataKey="percent" />
+      <YAxis dataKey="percent" domain = {[0, 100]}/>
       {data.length !== 0 ? <Tooltip content={<CustomTooltip />} /> : null}
     </AreaChart>
   );

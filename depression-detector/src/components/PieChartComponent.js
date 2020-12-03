@@ -13,9 +13,7 @@ const PieChart = ({ results }) => {
     var outerRadius = 200;
     var innerRadius = 150;
 
-    const width = 3.5 * outerRadius;
-    const height = 3 * outerRadius;
-    const colors = d3.scaleOrdinal().range(["#8884d8", "#8884d8"]);
+    const size = 3 * outerRadius;
 
     const ref = useRef(null);
     const cache = useRef(data);
@@ -34,8 +32,6 @@ const PieChart = ({ results }) => {
     const arcOver = d3.arc()
         .outerRadius(outerRadius + 50)
         .innerRadius(innerRadius);
-
-    const format = d3.format(".2f");
 
 
     //cleans up data given for the pie chart and table to process 
@@ -70,28 +66,28 @@ const PieChart = ({ results }) => {
         var res = (i.id).split(",");
         var startAngle = parseFloat(res[0]);
         var endAngle = parseFloat(res[1]);
-        var angle = 90 - ((startAngle * (180 / Math.PI)) + ((endAngle - startAngle) * (180 / Math.PI) / 2))
+        var angle = 270 - ((startAngle * (180 / Math.PI)) + ((endAngle - startAngle) * (180 / Math.PI) / 2))
 
         if (prevTable !== res[2]) {
             if (res[2] === "risk") {
                 setData(data[0].array);
-      
+
             } else {
                 setData(data[1].array);
-               
+
             }
             setChange(res[2]);
             setTable(true);
             d3.select("text.center")
                 .text(res[2] + ": " + res[3] + "%")
-                .style("font-size", 25)
+                .style("font-size", 30)
                 .style("fill", "#5a56bf")
                 .attr("transform", "rotate(" + (360 - angle) + ")");
 
             d3.select("g.chart")
                 .transition()
                 .duration(1000)
-                .attr("transform", "translate(" + (outerRadius + 200) + " " + (outerRadius + 50) + ")");
+                .attr("transform", "translate(" + (size * 1.2) + " " + (size/2.3) + ")");
 
             d3.select(i)
                 .transition()
@@ -113,7 +109,7 @@ const PieChart = ({ results }) => {
             d3.select("g.chart")
                 .transition()
                 .duration(1000)
-                .attr("transform", "translate(" + (outerRadius + 250) + " " + (outerRadius + 50) + ")");
+                .attr("transform", "translate(" + (size/2) + " " + (size/3) + ")");
 
             d3.select(i)
                 .transition()
@@ -137,12 +133,11 @@ const PieChart = ({ results }) => {
 
         const pie = createPie(data);
         const prevData = createPie(cache.current);
-        const group = d3.select(ref.current);
         const square = d3.select("g.square");
         const groupWithData = square.selectAll("g.arc").data(pie);
-        d3.selectAll("text.center").remove(); //square.selectAll("text.center").remove();
+        d3.selectAll("text.center").remove();
         groupWithData.exit().remove();
-        
+
 
         const groupWithUpdate = groupWithData
             .enter()
@@ -168,14 +163,14 @@ const PieChart = ({ results }) => {
             .attr("class", "arc")
             .attr("id", (d) => [d.startAngle, d.endAngle, d.data.label, d.data.value])
             .attr("value", (d) => d.startAngle)
-            .attr("fill", (d) => colors(d.data.label))
+            .attr("fill", "#8884d8")
             .attrTween("d", arcTween)
 
         const center = d3.select("g.square")
             .append("text")
             .attr("text-anchor", "middle")
             .style("fill", "gray")
-            .style("font-size", 10)
+            .style("font-size", 18)
             .text("click an arc to learn more");
 
         center.attr("class", "center")
@@ -184,36 +179,37 @@ const PieChart = ({ results }) => {
 
     const columns = [{
         Header: "Tweet Assessment Breakdown",
-        columns: [
-            {
-                Header: "Date",
-                accessor: "date"
-            },
-            {
-                Header: "Time",
-                accessor: "time"
-            },
-            {
-                Header: "Tweet",
-                accessor: "tweet",
-                style: { 'whiteSpace': 'unset' }
-            }
+        columns: [{
+            Header: "Date",
+            accessor: "date"
+        },
+        {
+            Header: "Time",
+            accessor: "time"
+        },
+        {
+            Header: "Tweet",
+            accessor: "tweet",
+            style: { 'whiteSpace': 'unset' }
+        }
         ]
     }];
 
-    return (
-        <div className="visualization">
-
-            <svg width={width} height={height}>
-
-                <g className="chart" ref={ref} transform={`translate(${outerRadius + 250} ${outerRadius + 50})`}  >
-                    <g className="square" />
-                </g>
-            </svg>
-            <div className={showTable ? "fadeIn" : "fadeOut"}>
-                <Table data={tableData} columns={columns} />
-            </div>
+    return (<div className="visualization" >
+            <div className={showTable ? "fadeIn" : "fadeOut"} >
+            <Table data={tableData}
+                columns={columns} />
+        </div> 
+        <div className = "test"> 
+        <svg width={1000}
+            height={size}  >
+            <g className="chart" ref={ref} transform={`translate(${size/2} ${size/3})`} >
+                <g className="square" />
+            </g>
+        </svg>
         </div>
+    
+    </div>
     );
 };
 

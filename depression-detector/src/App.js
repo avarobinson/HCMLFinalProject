@@ -57,8 +57,7 @@ class App extends Component {
       filterData
     });
 
-    console.log("data");
-    console.log(this.state.filterData);
+
 
     var piechartData = this.state.piechartData;
     piechartData = this.state.resultTable;
@@ -66,20 +65,19 @@ class App extends Component {
     var newData = [];
 
     var start = (this.state.filterData.startDate === '') ? piechartData[0].date  : this.state.filterData.startDate;
-    console.log("end");
-    console.log(this.state.filterData.endDate === '');
+
     var end = (this.state.filterData.endDate === '') ? piechartData[piechartData.length - 1].date  : this.state.filterData.endDate;
-    console.log(end);
+
     var i;
     for(i = 0; i < piechartData.length; i++){
       if(piechartData[i].date >= start && piechartData[i].date <= end){
         newData.push(piechartData[i]);
       }
     }
-    console.log(newData);
+
     piechartData = newData;
     this.setState({ piechartData});
-    console.log("rach");
+
 
 
   }
@@ -120,10 +118,10 @@ class App extends Component {
   };
 
   render() {
-    console.log("henlo");
+   
     const filterData = this.state.piechartData;
 
-    console.log(filterData);
+
     const formData = this.state.formData;
     const userPercentage = this.state.userPercentage;
 
@@ -184,14 +182,16 @@ class App extends Component {
         <div>
           {(resultTable.length === 0) ? null :
             <Row>
+              <Col></Col>
               <Col>
-                <label for="startDate">start date:</label>
+                <label htmlFor="startDate">start date: </label>
                 <input type="date" id="startDate" name="startDate" onChange={this.handleFilter}></input>
               </Col>
               <Col>
-                <label for="endDate">end date:</label>
+                <label htmlFor="endDate">end date: </label>
                 <input type="date" id="endDate" name="endDate" onChange={this.handleFilter}></input>
               </Col>
+              <Col></Col>
             </Row>
           }
           <PieChart results={filterData} />

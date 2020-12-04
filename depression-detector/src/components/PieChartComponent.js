@@ -50,10 +50,10 @@ const PieChart = ({ results }) => {
                 riskTweets.push({ tweet: results[i].tweet, date: results[i].date, time: results[i].time });
             }
         }
-        var risk = (riskTweets.length * 100) / results.length;
-        var noRisk = (noRiskTweets.length * 100) / results.length;
+        var risk = ((riskTweets.length * 100) / results.length).toFixed(2);
+        var noRisk = ((noRiskTweets.length * 100) / results.length).toFixed(2);
 
-        return [{ label: "risk", value: risk.toFixed(2), array: riskTweets }, { label: "no risk", value: noRisk.toFixed(2), array: noRiskTweets }];
+        return [{ label: "risk", value: risk, array: riskTweets }, { label: "no risk", value: noRisk, array: noRiskTweets }];
     }
 
     //function to show details of arcs in pie chart 
@@ -61,6 +61,23 @@ const PieChart = ({ results }) => {
     const [showTable, setTable] = useState(false);
     const [prevTable, setChange] = useState("");
     const [tableData, setData] = useState([]);
+
+    useEffect(() => {
+        setTable(false);
+        setData([]);
+        setChange("");
+
+        d3.select("g.chart")
+            .transition()
+            .duration(1000)
+            .attr("transform", "translate(" + (size /1.2 ) + " " + (size / 3) + ")");
+
+        d3.select("g.square")
+            .transition()
+            .duration(1000)
+            .attr("transform", "rotate(" + (0) + ")");
+        
+    }, [results])
 
     function change(d, i) {
         var res = (i.id).split(",");
@@ -87,7 +104,7 @@ const PieChart = ({ results }) => {
             d3.select("g.chart")
                 .transition()
                 .duration(1000)
-                .attr("transform", "translate(" + (size * 1.2) + " " + (size/2.3) + ")");
+                .attr("transform", "translate(" + (size * 1.2) + " " + (size / 2.3) + ")");
 
             d3.select(i)
                 .transition()
@@ -109,7 +126,8 @@ const PieChart = ({ results }) => {
             d3.select("g.chart")
                 .transition()
                 .duration(1000)
-                .attr("transform", "translate(" + (size/2) + " " + (size/3) + ")");
+                .attr("transform", "translate(" + (size /1.2 ) + " " + (size / 3) + ")");
+                
 
             d3.select(i)
                 .transition()
@@ -124,8 +142,6 @@ const PieChart = ({ results }) => {
 
         }
 
-
-
     };
 
     //creates actual chart 
@@ -137,7 +153,6 @@ const PieChart = ({ results }) => {
         const groupWithData = square.selectAll("g.arc").data(pie);
         d3.selectAll("text.center").remove();
         groupWithData.exit().remove();
-
 
         const groupWithUpdate = groupWithData
             .enter()
@@ -166,14 +181,23 @@ const PieChart = ({ results }) => {
             .attr("fill", "#8884d8")
             .attrTween("d", arcTween)
 
-        const center = d3.select("g.square")
+            const center = d3.select("g.square")
             .append("text")
             .attr("text-anchor", "middle")
+            .attr("class", "center")
+             
+        if(results.length === 0){ 
+            center
+            .style("fill", "gray")
+            .style("font-size", 18)
+            .text("no data available");
+        }else{
+            center
             .style("fill", "gray")
             .style("font-size", 18)
             .text("click an arc to learn more");
+        }
 
-        center.attr("class", "center")
         cache.current = data;
     });
 
@@ -196,19 +220,19 @@ const PieChart = ({ results }) => {
     }];
 
     return (<div className="visualization" >
-            <div className={showTable ? "fadeIn" : "fadeOut"} >
+        <div className={showTable ? "fadeIn" : "fadeOut"} >
             <Table data={tableData}
                 columns={columns} />
-        </div> 
-        <div className = "test"> 
-        <svg width={1000}
-            height={size}  >
-            <g className="chart" ref={ref} transform={`translate(${size/2} ${size/3})`} >
-                <g className="square" />
-            </g>
-        </svg>
         </div>
-    
+        <div className="test">
+            <svg width={1000}
+                height={size}  >
+                <g className="chart" ref={ref} transform={`translate(${size / 1.2} ${size / 3})`} >
+                    <g className="square" />
+                </g>
+            </svg>
+        </div>
+
     </div>
     );
 };

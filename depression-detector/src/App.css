@@ -81,6 +81,7 @@ input {
 .assessmentBreakdown {
     padding: 30px;
     width: 200px;
+    z-index: -1;
 }
 
 .visualization {
@@ -95,7 +96,8 @@ input {
     height: 0;
     transition: width 0.5s 0.5s, height 0.5s 0.5s, opacity 0.5s;
     padding: 30px;
-    width: 200px;
+    width: 0px;
+    pointer-events: none;
 }
 
 .fadeIn {

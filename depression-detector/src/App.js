@@ -90,7 +90,7 @@ class App extends Component {
       formData: {
         username: '',
         timeframe: 'pastweek',
-      }, userPercentage: "", resultTable: [], errorMessage: "", piechartData: ""
+      }, userPercentage: "", resultTable: [], errorMessage: "", piechartData: []
     });
   }
 

@@ -8,7 +8,8 @@ function CustomTooltip({ payload, active }) {
   if (active && payload.length !== 0) {
     return (
       <div className="custom-tooltip">
-        <p className="label">{`percent : ${payload[0].payload.percent}%`}</p>
+        <p className="label"> {`timeframe : ${payload[0].payload.date}`}</p>
+        <p className="risk">{`percent : ${payload[0].payload.percent}%`}</p>
         <p className="risk">{`at-risk tweets: ${payload[0].payload.risk}`}</p>
         <p className="risk">{`total tweets: ${payload[0].payload.total}`}</p>
       </div>

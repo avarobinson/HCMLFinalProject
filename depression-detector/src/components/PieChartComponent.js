@@ -41,17 +41,21 @@ const PieChart = ({ results }) => {
         }
         var riskTweets = [];
         var noRiskTweets = [];
+        var riskPercent = 0;
+        var noRiskPercent = 0;
 
         var i;
         for (i = 0; i < results.length; i++) {
-            if (results[i].risk === 0) { //checks risk assigned and divides given tweets into risk or not-risk groups
-                noRiskTweets.push({ tweet: results[i].tweet, date: results[i].date, time: results[i].time });
+            if (results[i].risk <= 0.5) { //checks risk assigned and divides given tweets into risk or not-risk groups
+                noRiskTweets.push({ tweet: results[i].tweet, date: results[i].date, time: results[i].time, risk: results[i].risk });
+                noRiskPercent += results[i].risk;
             } else {
-                riskTweets.push({ tweet: results[i].tweet, date: results[i].date, time: results[i].time });
+                riskTweets.push({ tweet: results[i].tweet, date: results[i].date, time: results[i].time, risk: results[i].risk});
+                riskPercent += results[i].risk;
             }
         }
-        var risk = ((riskTweets.length * 100) / results.length).toFixed(2);
-        var noRisk = ((noRiskTweets.length * 100) / results.length).toFixed(2);
+        var risk = ((riskPercent * 100) / results.length).toFixed(2);
+        var noRisk = ((riskPercent * 100) / results.length).toFixed(2);
 
         return [{ label: "risk", value: risk, array: riskTweets }, { label: "no risk", value: noRisk, array: noRiskTweets }];
     }
@@ -215,6 +219,10 @@ const PieChart = ({ results }) => {
             Header: "Tweet",
             accessor: "tweet",
             style: { 'whiteSpace': 'unset' }
+        },
+        {
+            Header: "Risk",
+            accessor: "risk"
         }
         ]
     }];

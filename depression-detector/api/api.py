@@ -13,21 +13,11 @@ from transformers import RobertaTokenizer, RobertaForSequenceClassification
 import torch
 from pandas import DataFrame
 import re
+import nltk
 
-# import nltk
-# import ssl
-
-# try:
-#     _create_unverified_https_context = ssl._create_unverified_context
-# except AttributeError:
-#     pass
-# else:
-#     ssl._create_default_https_context = _create_unverified_https_context
-
-# nltk.download()
-# nltk.download(['punkt','stopwords'])
-# from nltk.corpus import stopwords
-# stopwords = stopwords.words('english')
+nltk.download(['punkt','stopwords'])
+from nltk.corpus import stopwords
+stopwords = stopwords.words('english')
 
 app = Flask(__name__)
 # CORS(app)
@@ -94,7 +84,6 @@ def user_data(formData):
 
 def clean_and_format_data(data):
     #TODO: integrate Ellie's scripts for cleaning data and prep for model
-    #TODO: add in split csv script
     #TODO: when a element in the array is deleted in the clean data, delete in original data also
     # Note: second return value (currently "data") would be the og tweet content 
 
@@ -104,21 +93,18 @@ def clean_and_format_data(data):
         tweet_content.append(i.tweet)
     
     df = DataFrame (tweet_content,columns=['tweet'])
-    #TODO:fix stopwords resource to allow for removal 
     #TODO: if tweets are completely removed, they also need to be removed from "data" - should not be considered at all
-    # df['tweet'] = df['tweet'].apply(lambda x: ' '.join([item for item in x.split() if item not in stopwords]))
+    df['tweet'] = df['tweet'].apply(lambda x: ' '.join([item for item in x.split() if item not in stopwords]))
     df['tweet'] = df['tweet'].apply(lambda x: x.encode('ascii', 'ignore').decode('ascii'))
     df["tweet"] = df["tweet"].str.lower()
     df['tweet'] = df['tweet'].apply(lambda x: re.split('https:\/\/.*', str(x))[0])
     df['tweet'] = df['tweet'].apply(lambda x: re.split('http:\/\/.*', str(x))[0])
-    df_new = df[df['tweet'].notnull()]
-    users = df_new['tweet'].str.startswith('@')
-    df_new = df_new[~users].reset_index(drop=True)
-    
-    clean_tweet_content = df_new.values.tolist()
+
+    clean_tweet_content = df.values.tolist()
     
     # TODO: make orig data match up with removed tweets
     df_orig_data = DataFrame (data,columns=['tweet'])
+    
     print('clean vs. orig', len(clean_tweet_content), len(data))
     return clean_tweet_content, data
     

@@ -6,9 +6,20 @@ import { AreaChart, Area, CartesianGrid, XAxis, YAxis, Tooltip } from 'recharts'
 //custom tooltip to show data when hovering over points 
 function CustomTooltip({ payload, active }) {
   if (active && payload.length !== 0) {
+    var timeframe = payload[0].payload.timeframe;
+    var startDate = timeframe[0];
+    var endDate = timeframe[timeframe.length - 1];
+    var range;
+
+    //creates range of dates the data is aggregated from for each grouping 
+    if(startDate === endDate){
+      range = startDate;
+    }else{
+      range = startDate + " to " + endDate;
+    }
     return (
       <div className="custom-tooltip">
-        <p className="label"> {`timeframe : ${payload[0].payload.date}`}</p>
+        <p className="label"> {`timeframe : ${range}`}</p>
         <p className="risk">{`percent : ${payload[0].payload.percent}%`}</p>
         <p className="risk">{`at-risk tweets: ${payload[0].payload.risk}`}</p>
         <p className="risk">{`total tweets: ${payload[0].payload.total}`}</p>
@@ -32,7 +43,7 @@ const Timeline = ({ results, timeframe }) => {
     var endYear = parseInt(end.year);
     var i
     for (i = startYear; i <= endYear; i++) {
-      timeline_data.push({ date: i, risk: 0, total: 0, percent: 0 });
+      timeline_data.push({ date: i, risk: 0, total: 0, percent: 0, timeframe: [] });
       template.push(i);
     }
 
@@ -56,7 +67,7 @@ const Timeline = ({ results, timeframe }) => {
 
     var i
     for (i = startSeason; i <= (startSeason + numSeasons); i++) {
-      timeline_data.push({ date: season[i % 4] + " " + startYear, risk: 0, total: 0, percent: 0 });
+      timeline_data.push({ date: season[i % 4] + " " + startYear, risk: 0, total: 0, percent: 0, timeframe: [] });
       template.push(season[i % 4] + " " + startYear);
       if (i % 4 === 0) {
         startYear++;
@@ -83,11 +94,11 @@ const Timeline = ({ results, timeframe }) => {
     var i
     for (i = startMonth; i <= (startMonth + numMonths); i++) {
       if (i % 12 === 0) {
-        timeline_data.push({ date: month[12] + " " + startYear, risk: 0, total: 0, percent: 0 });
+        timeline_data.push({ date: month[12] + " " + startYear, risk: 0, total: 0, percent: 0, timeframe: [] });
         template.push(month[12] + " " + startYear);
         startYear++;
       } else {
-        timeline_data.push({ date: month[(i % 12)] + " " + startYear, risk: 0, total: 0, percent: 0 });
+        timeline_data.push({ date: month[(i % 12)] + " " + startYear, risk: 0, total: 0, percent: 0, timeframe: [] });
         template.push(month[i % 12] + " " + startYear);
       }
     }
@@ -125,12 +136,12 @@ const Timeline = ({ results, timeframe }) => {
     }
 
     if (numDays === 0) { //corner case if we are only given one date 
-      timeline_data.push({ date: month[startMonth] + " " + startDay, risk: 0, total: 0, percent: 0 });
+      timeline_data.push({ date: month[startMonth] + " " + startDay, risk: 0, total: 0, percent: 0, timeframe: [] });
       template.push(month[startMonth] + " " + startDay);
     } else {
       var i;
       for (i = 0; i < numDays; i++) {
-        timeline_data.push({ date: month[startMonth] + " " + startDay, risk: 0, total: 0, percent: 0 });
+        timeline_data.push({ date: month[startMonth] + " " + startDay, risk: 0, total: 0, percent: 0, timeframe: [] });
         template.push(month[startMonth] + " " + startDay);
         startDay++;
         var end1 = (startDay === 30 && thirty.indexOf(startMonth) !== -1);
@@ -189,8 +200,11 @@ const Timeline = ({ results, timeframe }) => {
         }
         index = template.indexOf(value);
         data[index].total++;
+
+        data[index].timeframe.push(results[i].date);
         data[index].risk += results[i].risk;
       }
+
 
       for (i = 0; i < data.length; i++) {
         if (data[i].total === 0) {

@@ -11,7 +11,7 @@ import re
 import nltk
 nltk.download(['punkt','stopwords'])
 from nltk.corpus import stopwords
-stopwords = stopwords.words('english')
+stopwords = stopwords.words('english')[4:]
 
 def compute_metrics(pred):
     labels = pred.label_ids
@@ -81,7 +81,7 @@ def encode_data(train=True):
         val_dataset = DepressionDataset(val_encodings, val_labels)
         test_dataset = DepressionDataset(test_encodings, test_labels)
 
-        tokenizer.save_pretrained('./roberta_v2_3/')
+        tokenizer.save_pretrained('./roberta_v2_3_self')
 
         return train_dataset, val_dataset, test_dataset
     
@@ -93,14 +93,14 @@ def encode_data(train=True):
 
 def train_model(train_dataset, val_dataset, test_dataset): 
     training_args = TrainingArguments(
-        output_dir='./results_v2_3',         # output directory  
+        output_dir='./results_v2_3_self',         # output directory  
         evaluate_during_training=True,
         num_train_epochs=5,              # total number of training epochs
         per_device_train_batch_size=8,  # batch size per device during training
         per_device_eval_batch_size=32,   # batch size for evaluation
         warmup_steps=10,                # number of warmup steps for learning rate scheduler
         weight_decay=0.01,               # strength of weight decay
-        logging_dir='./logs_v2_3',            # directory for storing logs
+        logging_dir='./logs_v2_3_self',            # directory for storing logs
         logging_steps=15,
     )
 
@@ -117,7 +117,7 @@ def train_model(train_dataset, val_dataset, test_dataset):
     trainer.train()
     trainer.evaluate(test_dataset)
 
-    model.save_pretrained('./roberta_v2_3/')
+    model.save_pretrained('./roberta_v2_3_self')
 
 def quick_test(tweet):
     tokenizer = RobertaTokenizer.from_pretrained('./roberta_v2_3')
@@ -125,7 +125,13 @@ def quick_test(tweet):
     inputs = tokenizer(tweet, return_tensors="pt")
     model.eval()
     output = model(inputs['input_ids'], inputs['attention_mask'], labels=None)
-    output = torch.argmax(output[0])
+    sigmoid = torch.nn.Sigmoid()
+    softmax = torch.nn.Softmax(dim=0)
+    output = softmax(sigmoid(output[0].squeeze()))
+    output_class = torch.argmax(output)
+    output = torch.max(output)
+    if output_class == 0:
+        output = 1 - output 
     print("tweet: ", tweet)
     print("prediction: ", output.item())
     return output.item()
@@ -203,5 +209,5 @@ def quick_test(tweet):
 if __name__ == "__main__":
     test_tweets, test_labels = encode_data(train=False)
     quick_test(test_tweets[200])
+    # train_data, val_data, test_data = encode_data(train=True)
     # train_model(train_data, val_data, test_data)
-    # test_model(train_data, val_data)

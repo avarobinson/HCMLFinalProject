@@ -7,7 +7,7 @@ import '../App.css';
 const PieChart = ({ results }) => {
 
     //cleaned up data 
-    var data = reorganizeData(results);
+    const [data, setResults] = useState(reorganizeData(results));
 
     //pie chart variables 
     var outerRadius = 200;
@@ -48,16 +48,14 @@ const PieChart = ({ results }) => {
         for (i = 0; i < results.length; i++) {
             if (results[i].risk <= 0.5) { //checks risk assigned and divides given tweets into risk or not-risk groups
                 noRiskTweets.push({ tweet: results[i].tweet, date: results[i].date, time: results[i].time, risk: results[i].risk });
-                noRiskPercent += results[i].risk;
             } else {
                 riskTweets.push({ tweet: results[i].tweet, date: results[i].date, time: results[i].time, risk: results[i].risk});
-                riskPercent += results[i].risk;
             }
         }
-        var risk = ((riskPercent * 100) / results.length).toFixed(2);
-        var noRisk = ((riskPercent * 100) / results.length).toFixed(2);
+        var risk = ((riskTweets.length* 100) / results.length).toFixed(2);
+        var noRisk = ((noRiskTweets.length * 100) / results.length).toFixed(2);
 
-        return [{ label: "risk", value: risk, array: riskTweets }, { label: "no risk", value: noRisk, array: noRiskTweets }];
+        return [{ label: "at risk", value: risk, array: riskTweets }, { label: "not at risk", value: noRisk, array: noRiskTweets }];
     }
 
     //function to show details of arcs in pie chart 
@@ -67,6 +65,8 @@ const PieChart = ({ results }) => {
     const [tableData, setData] = useState([]);
 
     useEffect(() => {
+        var data = reorganizeData(results);
+        setResults(data);
         setTable(false);
         setData([]);
         setChange("");
@@ -83,14 +83,16 @@ const PieChart = ({ results }) => {
         
     }, [results])
 
+
     function change(d, i) {
+        
         var res = (i.id).split(",");
         var startAngle = parseFloat(res[0]);
         var endAngle = parseFloat(res[1]);
         var angle = 270 - ((startAngle * (180 / Math.PI)) + ((endAngle - startAngle) * (180 / Math.PI) / 2))
 
         if (prevTable !== res[2]) {
-            if (res[2] === "risk") {
+            if (res[2] === "at risk") {
                 setData(data[0].array);
 
             } else {
@@ -100,8 +102,8 @@ const PieChart = ({ results }) => {
             setChange(res[2]);
             setTable(true);
             d3.select("text.center")
-                .text(res[2] + ": " + res[3] + "%")
-                .style("font-size", 30)
+                .text("% " + res[2] + " tweets: " + res[3])
+                .style("font-size", 20)
                 .style("fill", "#5a56bf")
                 .attr("transform", "rotate(" + (360 - angle) + ")");
 

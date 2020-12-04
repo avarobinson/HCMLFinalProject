@@ -1,6 +1,6 @@
 import React from "react";
 import '../App.css';
-import { AreaChart, Area, Legend, CartesianGrid, XAxis, YAxis, Tooltip } from 'recharts';
+import { AreaChart, Area, Legend, LineChart, Line, CartesianGrid, XAxis, YAxis, Tooltip } from 'recharts';
 import { Form, Col, Container, Row, Button, InputGroup } from 'react-bootstrap';
 
 //custom tooltip to show data when hovering over points 
@@ -234,16 +234,16 @@ const Timeline = ({ results, timeframe }) => {
   var data = reorganizeData(results);
 
   return (
-    <AreaChart width={1000} height={500} data={data} margin={{ top: 50, right: 20, bottom: 5, left: 0 }}>
-       <Area name = "continuous risk percentage" connectNulls type="monotone" dataKey="contPercent" stroke="#247893" fill="#247893" fillOpacity={0.4} activeDot={{r: 6, onClick: ()=> {alert("clicked")} }}/>
-      <Area name = "current timeframe risk percentage" connectNulls type="monotone" dataKey="percent" stroke="#8884d8" fill="#8884d8" fillOpacity={0.4} activeDot={{ r: 6 }} />
+    <LineChart width={1000} height={500} data={data} margin={{ top: 50, right: 20, bottom: 5, left: 0 }}>
+       <Line name = "continuous risk percentage" connectNulls  type="monotone" dataKey="contPercent" stroke="#247893" fill="#247893" fillOpacity={0.4} activeDot={{r: 6, onClick: ()=> {alert("clicked")} }}/>
+      <Line name = "current timeframe risk percentage" connectNulls  type="monotone" dataKey="percent" stroke="#8884d8" fill="#8884d8" fillOpacity={0.4} activeDot={{ r: 6, onClick: ()=> {alert("clicked")} }} />
      
       <CartesianGrid stroke="#ccc" strokeDasharray="5 5" />
       <XAxis dataKey="date" />
       <YAxis dataKey="percent" domain = {[0, 100]}/>
       {data.length !== 0 ? <Tooltip content={<CustomTooltip />} /> : null}
       <Legend />
-    </AreaChart>
+    </LineChart>
   );
 }
 

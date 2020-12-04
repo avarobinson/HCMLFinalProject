@@ -57,8 +57,19 @@ class App extends Component {
       filterData
     });
 
+    this.changeDates();
+  }
 
+  timelineFilter(start, end){
+    var startDate = this.state.filterData.startDate;
+    var endDate = this.state.filterData.endDate;
+    this.setState({
+      startDate: start,
+      endDate: end
+    })
+  }
 
+  changeDates(){
     var piechartData = this.state.piechartData;
     piechartData = this.state.resultTable;
     piechartData.sort((a, b) => (a.date > b.date) ? 1 : -1)
@@ -74,11 +85,9 @@ class App extends Component {
         newData.push(piechartData[i]);
       }
     }
-
+    
     piechartData = newData;
     this.setState({ piechartData});
-
-
 
   }
 

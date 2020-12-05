@@ -184,7 +184,18 @@ class App extends Component {
             </Col>
           </Row>
 
-          {this.state.errorMessage ? <p> Sorry, this twitter handle is invalid. Please enter a different twitter handle. </p> : userPercentage == "" ? null : (userPercentage == "-1" ? <p> Sorry, no tweets were found during this timeframe. Please select a different timeframe or twitter handle. </p> : <p> User's risk percentage: {userPercentage} %</p>)}
+          <div className="text">
+            {this.state.errorMessage ? <p> Sorry, this twitter handle is invalid. Please enter a different twitter handle. </p> : userPercentage == "" ? null : (userPercentage == "-1" ? <p> Sorry, no tweets were found during this timeframe. Please select a different timeframe or twitter handle. </p> : null)}
+          </div>
+          {userPercentage && userPercentage != "-1" ? 
+            <div className="percentage"> 
+              <h4> User's risk percentage: {userPercentage} %</h4> 
+              <p> If you are having thoughts of suicide and need support right now, there are people who care about your life and will provide you with resources that can help. Call the toll-free National Suicide Prevention Lifeline at <b>1-800-273-TALK</b> (8255) to be connected with a trained counselor at a crisis center anytime. </p>
+              <p> For more resources to help you manage depression and take care of your mental health, visit 
+                <a href="https://www.everydayhealth.com/depression/guide/resources/" target="_blank"> everydayhealth.com </a> 
+              </p>
+            </div>
+            : null}
         </div>
         <Timeline results={resultTable} timeframe={this.state.formData["timeframe"]} />
 

@@ -27,10 +27,9 @@ def scrape_and_predict():
     # print('scraped tweets', tweets)
     # 2. clean data 
     clean_tweets, original_tweets = clean_and_format_data(tweets)
-    # print('origonal twweets', original_tweets[0].tweet)
-    # print('clean tweeets', clean_tweets)
-    # 3. run model
+    # original tweets will be a list of lists where the sublist has a single tweet object
 
+    # 3. run model
     predictions = predict(clean_tweets, original_tweets)
     # print('done predicting')
     return predictions
@@ -78,31 +77,63 @@ def user_data(formData):
 
 
 def clean_and_format_data(data):
-    stopwords = ['i', 'me', 'my', 'myself', 'we', 'our', 'ours', 'ourselves', 'you', "you're", "you've", "you'll", "you'd", 'your', 'yours', 'yourself', 'yourselves', 'he', 'him', 'his', 'himself', 'she', "she's", 'her', 'hers', 'herself', 'it', "it's", 'its', 'itself', 'they', 'them', 'their', 'theirs', 'themselves', 'what', 'which', 'who', 'whom', 'this', 'that', "that'll", 'these', 'those', 'am', 'is', 'are', 'was', 'were', 'be', 'been', 'being', 'have', 'has', 'had', 'having', 'do', 'does', 'did', 'doing', 'a', 'an', 'the', 'and', 'but', 'if', 'or', 'because', 'as', 'until', 'while', 'of', 'at', 'by', 'for', 'with', 'about', 'against', 'between', 'into', 'through', 'during', 'before', 'after', 'above', 'below', 'to', 'from', 'up', 'down', 'in', 'out', 'on', 'off', 'over', 'under', 'again', 'further', 'then', 'once', 'here', 'there', 'when', 'where', 'why', 'how', 'all', 'any', 'both', 'each', 'few', 'more', 'most', 'other', 'some', 'such', 'no', 'nor', 'not', 'only', 'own', 'same', 'so', 'than', 'too', 'very', 's', 't', 'can', 'will', 'just', 'don', "don't", 'should', "should've", 'now', 'd', 'll', 'm', 'o', 're', 've', 'y', 'ain', 'aren', "aren't", 'couldn', "couldn't", 'didn', "didn't", 'doesn', "doesn't", 'hadn', "hadn't", 'hasn', "hasn't", 'haven', "haven't", 'isn', "isn't", 'ma', 'mightn', "mightn't", 'mustn', "mustn't", 'needn', "needn't", 'shan', "shan't", 'shouldn', "shouldn't", 'wasn', "wasn't", 'weren', "weren't", 'won', "won't", 'wouldn', "wouldn't"]
-    #TODO: integrate Ellie's scripts for cleaning data and prep for model
-    #TODO: when a element in the array is deleted in the clean data, delete in original data also
     # Note: second return value (currently "data") would be the og tweet content 
+    stopwords = ['i', 'me', 'my', 'myself', 'we', 'our', 'ours', 'ourselves', 'you', "you're", "you've", "you'll", "you'd", 'your', 'yours', 'yourself', 'yourselves', 'he', 'him', 'his', 'himself', 'she', "she's", 'her', 'hers', 'herself', 'it', "it's", 'its', 'itself', 'they', 'them', 'their', 'theirs', 'themselves', 'what', 'which', 'who', 'whom', 'this', 'that', "that'll", 'these', 'those', 'am', 'is', 'are', 'was', 'were', 'be', 'been', 'being', 'have', 'has', 'had', 'having', 'do', 'does', 'did', 'doing', 'a', 'an', 'the', 'and', 'but', 'if', 'or', 'because', 'as', 'until', 'while', 'of', 'at', 'by', 'for', 'with', 'about', 'against', 'between', 'into', 'through', 'during', 'before', 'after', 'above', 'below', 'to', 'from', 'up', 'down', 'in', 'out', 'on', 'off', 'over', 'under', 'again', 'further', 'then', 'once', 'here', 'there', 'when', 'where', 'why', 'how', 'all', 'any', 'both', 'each', 'few', 'more', 'most', 'other', 'some', 'such', 'no', 'nor', 'not', 'only', 'own', 'same', 'so', 'than', 'too', 'very', 's', 't', 'can', 'will', 'just', 'don', "don't", 'should', "should've", 'now', 'd', 'll', 'm', 'o', 're', 've', 'y', 'ain', 'aren', "aren't", 'couldn', "couldn't", 'didn', "didn't", 'doesn', "doesn't", 'hadn', "hadn't", 'hasn', "hasn't", 'haven', "haven't", 'isn', "isn't", 'ma', 'mightn', "mightn't", 'mustn', "mustn't", 'needn', "needn't", 'shan', "shan't", 'shouldn', "shouldn't", 'wasn', "wasn't", 'weren', "weren't", 'won', "won't", 'wouldn', "wouldn't"]
 
     # creates an array of tweet content only
     tweet_content = []
     for i in data:
         tweet_content.append(i.tweet)
     
-    df = DataFrame (tweet_content,columns=['tweet'])
-    #TODO: if tweets are completely removed, they also need to be removed from "data" - should not be considered at all
-    df['tweet'] = df['tweet'].apply(lambda x: ' '.join([item for item in x.split() if item not in stopwords]))
-    df['tweet'] = df['tweet'].apply(lambda x: x.encode('ascii', 'ignore').decode('ascii'))
+    df = DataFrame (tweet_content, columns=['tweet'])
+    
+    # make lowercase
     df["tweet"] = df["tweet"].str.lower()
+    
+    # remove stopwords 
+    df['tweet'] = df['tweet'].apply(lambda x: ' '.join([item for item in x.split() if item not in stopwords]))
+    
+    # remove all links/urls 
+    # def remove_url(txt):
+    #     return " ".join(re.sub("([^0-9A-Za-z \t])|(\w+:\/\/\S+)", "", txt).split())
+    # all_tweets_no_urls = [remove_url(tweet) for tweet in df['tweet']]
+    # all_tweets_no_urls[:5]
     df['tweet'] = df['tweet'].apply(lambda x: re.split('https:\/\/.*', str(x))[0])
     df['tweet'] = df['tweet'].apply(lambda x: re.split('http:\/\/.*', str(x))[0])
+    # remove emojis 
+    df['tweet'] = df['tweet'].apply(lambda x: x.encode('ascii', 'ignore').decode('ascii'))
+    
+    # remove usernames 
+    # for i in range(len(df['tweet'])):
+    #     try:
+    #         df['tweet'][i] = df['tweet'].str.split(' ')[i][0]
+    #     except AttributeError:    
+    #         df['tweet'][i] = 'other'
 
+    # remove URLs, RTs, and twitter handles
+    for i in range(len(df['tweet'])):
+        df['tweet'][i] = " ".join([word for word in df['tweet'][i].split()
+                                if 'http' not in word and '@' not in word and '<' not in word])
+
+    # print('clean vs. orig 1', len(df.values.tolist()), len(data))
+    # get indices of null values and empty strings 
+    null_idx = df[df['tweet'].isnull()].index.tolist()
+    null_idx2 = df.index[df['tweet']==''].tolist()
+    null_idx = null_idx + null_idx2
+   
+    # remove null values from origonal data 
+    df_orig_data = DataFrame (data, columns=['tweet'])
+    df_orig_data = df_orig_data.drop(index=null_idx)
+
+    # remove null values 
+    # df = df[df['tweet'].notnull()]
+    df = df.drop(index=null_idx)
+    # convert to list 
     clean_tweet_content = df.values.tolist()
+    orig_data = df_orig_data.values.tolist()
     
-    # TODO: make orig data match up with removed tweets
-    df_orig_data = DataFrame (data,columns=['tweet'])
-    
-    print('clean vs. orig', len(clean_tweet_content), len(data))
-    return clean_tweet_content, data
+    # print('clean vs. orig', len(clean_tweet_content), len(orig_data))
+    return clean_tweet_content, orig_data
     
 def predict(modelData, originalData):
     """Run model on each tweet"""
@@ -122,9 +153,9 @@ def predict(modelData, originalData):
     tweet_dates = []
     tweet_times = []
     for i in originalData:
-        tweet_content.append(i.tweet)
-        tweet_dates.append(i.datestamp)
-        tweet_times.append(i.timestamp)
+        tweet_content.append(i[0].tweet)
+        tweet_dates.append(i[0].datestamp)
+        tweet_times.append(i[0].timestamp)
 
     # turns given tweets, times, and results into a list of objects used for the data table
     resultTable = [{"tweet": c, "date": d, "time": t, "risk": r}

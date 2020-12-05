@@ -3,7 +3,6 @@ import './App.css';
 import { Form, Col, Container, Row, Button, InputGroup } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import "./index.css";
-import PieChart from './components/PieChartComponent';
 import Timeline from './components/TimelineComponent';
 
 class App extends Component {
@@ -14,7 +13,6 @@ class App extends Component {
       formValid: false,
       userPercentage: "",
       resultTable: [],
-      piechartData: [],
       formData: {
         username: '',
         timeframe: 'pastweek',
@@ -42,35 +40,13 @@ class App extends Component {
     });
   }
 
-  handleFilter = (event) =>{
-    const value = event.target.value;
-    const name = event.target.name;
-    var filterData = this.state.filterData;
-    filterData[name] = value;
-    
-    this.setState({
-      filterData
-    });
-
-    this.changeDates();
-  }
-
-  timelineFilter(start, end){
-    var startDate = this.state.filterData.startDate;
-    var endDate = this.state.filterData.endDate;
-    this.setState({
-      startDate: start,
-      endDate: end
-    })
-  }
-
   //resets data when user clicks reset button
   resetData = (event) => {
     this.setState({
       formData: {
         username: '',
         timeframe: 'pastweek',
-      }, userPercentage: "", resultTable: [], errorMessage: "", piechartData: []
+      }, userPercentage: "", resultTable: [], errorMessage: ""
     });
   }
 
@@ -89,7 +65,7 @@ class App extends Component {
     }
     ).then(res => res.json()).then(data => {
       //updates percentage & breakdown table 
-      this.setState({ userPercentage: data.percentage, resultTable: data.table, piechartData: data.table });
+      this.setState({ userPercentage: data.percentage, resultTable: data.table });
     }).catch((error) => {
       //notifies user that they submitted an invalid twitter handle 
       this.setState({ errorMessage: error.message })
@@ -98,9 +74,6 @@ class App extends Component {
   };
 
   render() {
-   
-    const filterData = this.state.piechartData;
-
 
     const formData = this.state.formData;
     const userPercentage = this.state.userPercentage;

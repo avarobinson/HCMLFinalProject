@@ -78,6 +78,23 @@ input {
     border: 1px solid;
 }
 
+.title {
+    margin-top: 20px;
+}
+
+.content {
+    margin: 10px;
+}
+
+.text {
+    margin-top: 10px;
+    color: red;
+}
+
+.percentage {
+    margin-top: 15px;
+}
+
 .assessmentBreakdown {
     padding: 30px;
     width: 200px;

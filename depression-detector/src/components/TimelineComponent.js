@@ -278,7 +278,10 @@ const Timeline = ({ results, timeframe }) => {
 
   return (
     <div>
-      <AreaChart onMouseDown={results.length === 0 ? null : (e) => setTimeframe(e.activeTooltipIndex)} width={1000} height={500} data={data} margin={{ top: 50, right: 20, bottom: 5, left: 0 }}>
+      <div className = "linechart"> 
+      <p className = "graph-title"> Risk of Depression Over Time</p>
+      <p className = "description"> click on the data points for more details via the pie chart</p>
+      <AreaChart onMouseDown={results.length === 0 ? null : (e) => setTimeframe(e.activeTooltipIndex)} width={1000} height={500} data={data} margin={{ top: 0, right: 20, bottom: 5, left: 0 }}>
         <Area name="continuous risk %" connectNulls type="monotone" dataKey="contPercent" stroke="#247893" fill="#247893" fillOpacity={0.4} activeDot={{ r: 8 }} />
         <Area name="current timeframe risk %" connectNulls type="monotone" dataKey="percent" stroke="#8884d8" fill="#8884d8" fillOpacity={0.4} activeDot={{ r: 8 }} />
 
@@ -288,7 +291,12 @@ const Timeline = ({ results, timeframe }) => {
         {data.length !== 0 ? <Tooltip content={<CustomTooltip />} /> : null}
         <Legend />
       </AreaChart>
-      <div>
+      </div>
+      
+      <div className = "piechart">
+      {results.length === 0 ?
+      <p className = "graph-title"> Categorized Tweets </p> : <p className = "graph-title"> Categorized Tweets Between {startDate} and {endDate}</p>}
+      <p className = "description"> view the categorized tweets for a specific timeframe </p>
         {(results.length === 0) ? null :
           <Row>
             <Col></Col>

@@ -150,3 +150,24 @@ input {
 .test {
     margin-top: 50px;
 }
+
+.linechart {
+    margin-top: 50px;
+    text-align: center;
+    color: gray;
+}
+
+.graph-title {
+    text-align: center;
+    font-size: 25px;
+    color: #8884d8;
+}
+
+.description {
+    text-align: center;
+    color: gray;
+}
+
+.piechart {
+    margin-top: 100px;
+}

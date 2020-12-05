@@ -136,7 +136,7 @@ class App extends Component {
           </div>
           {userPercentage && userPercentage != "-1" ? 
             <div className="percentage"> 
-              <h4> User's risk percentage: {userPercentage} %</h4> 
+              <h4> {this.state.formData.username}'s risk percentage: {userPercentage.toFixed(2)} %</h4> 
               <p> If you are having thoughts of suicide and need support right now, there are people who care about your life and will provide you with resources that can help. Call the toll-free National Suicide Prevention Lifeline at <b>1-800-273-TALK</b> (8255) to be connected with a trained counselor at a crisis center anytime. </p>
               <p> For more resources to help you manage depression and take care of your mental health, visit 
                 <a href="https://www.everydayhealth.com/depression/guide/resources/" target="_blank"> everydayhealth.com </a> 

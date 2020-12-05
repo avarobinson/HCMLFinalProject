@@ -1,10 +1,12 @@
-import React from "react";
+import React, { useState, useEffect, useRef } from "react";
 import '../App.css';
 import { AreaChart, Area, Legend, LineChart, Line, CartesianGrid, XAxis, YAxis, Tooltip } from 'recharts';
-import { Form, Col, Container, Row, Button, InputGroup } from 'react-bootstrap';
+import { Col, Row, } from 'react-bootstrap';
+import PieChart from './PieChartComponent';
 
 //custom tooltip to show data when hovering over points 
 function CustomTooltip({ payload, active }) {
+  // console.log(payload);
   if (active && payload.length !== 0) {
     var timeframe = payload[0].payload.timeframe;
     var startDate = timeframe[0];
@@ -12,9 +14,9 @@ function CustomTooltip({ payload, active }) {
     var range;
 
     //creates range of dates the data is aggregated from for each grouping 
-    if(startDate === endDate){
+    if (startDate === endDate) {
       range = startDate;
-    }else{
+    } else {
       range = startDate + " to " + endDate;
     }
     return (
@@ -22,8 +24,6 @@ function CustomTooltip({ payload, active }) {
         <p className="risk"> {`${range}`}</p>
         <p className="labelRisk">{`percent : ${payload[0].payload.percent}%`}</p>
         <p className="labelCont">{`continuous percent : ${payload[0].payload.contPercent}%`}</p>
-        {/* <p className="risk">{`at-risk tweets: ${payload[0].payload.risk}`}</p>
-        <p className="risk">{`total tweets: ${payload[0].payload.total}`}</p> */}
       </div>
     );
   }
@@ -31,8 +31,45 @@ function CustomTooltip({ payload, active }) {
 }
 
 const Timeline = ({ results, timeframe }) => {
+
   const month = ['', 'jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec'];
   const season = ["winter", "spring", "summer", "fall"];
+  const [startDate, setStart] = useState(results.length === 0 ? '' : results[0].date);
+  const [endDate, setEnd] = useState(results.length === 0 ? '' : results[results.length - 1].date);
+  const [pieChartData, setPieChartData] = useState(results);
+  const formStart = useRef(null);
+  const formEnd = useRef(null);
+
+
+  function handleFilter(event) {
+    const value = event.target.value;
+    const name = event.target.name;
+
+
+    if (name === "startDate") {
+      setStart(value);
+    } else {
+      setEnd(value);
+    }
+  }
+
+  useEffect(() => {
+    if (results.length !== 0) {
+      var piechartData = results;
+      // piechartData.sort((a, b) => (a.date > b.date) ? 1 : -1)
+      var newData = [];
+      var start = (startDate === '') ? piechartData[0].date : startDate;
+      var end = (endDate === '') ? piechartData[piechartData.length - 1].date : endDate;
+      var i;
+      for (i = 0; i < piechartData.length; i++) {
+        if (piechartData[i].date >= start && piechartData[i].date <= end) {
+          newData.push(piechartData[i]);
+        }
+      }
+      setPieChartData(newData);
+    }
+  }, [startDate, endDate, results])
+
 
   //creates initial year-timespan, then aggregates data by year 
   function groupByYear(data, start, end) {
@@ -53,7 +90,7 @@ const Timeline = ({ results, timeframe }) => {
 
   //creates initial season-timespan, then aggregates data by season (dividing a year into 4 parts)
   function groupBySeason(data, start, end) {
-    data.sort((a, b) => (a.date > b.date) ? 1 : -1)
+    // data.sort((a, b) => (a.date > b.date) ? 1 : -1)
     var timeline_data = [];
     var template = [];
     var startSeason = (parseInt(start.month) === 12) ? 3 : Math.floor(parseInt(start.month) / 3);
@@ -80,7 +117,7 @@ const Timeline = ({ results, timeframe }) => {
   //creates initial month-timespan, then aggregates data by month
   function groupByMonth(data, start, end) {
 
-    data.sort((a, b) => (a.date > b.date) ? 1 : -1)
+    // data.sort((a, b) => (a.date > b.date) ? 1 : -1)
     var timeline_data = [];
     var template = [];
     var startMonth = parseInt(start.month);
@@ -95,11 +132,11 @@ const Timeline = ({ results, timeframe }) => {
     var i
     for (i = startMonth; i <= (startMonth + numMonths); i++) {
       if (i % 12 === 0) {
-        timeline_data.push({ date: month[12] + " " + startYear, risk: 0, total: 0, contRisk: 0, contTotal: 0, contPercent: 0,  percent: 0, timeframe: [] });
+        timeline_data.push({ date: month[12] + " " + startYear, risk: 0, total: 0, contRisk: 0, contTotal: 0, contPercent: 0, percent: 0, timeframe: [] });
         template.push(month[12] + " " + startYear);
         startYear++;
       } else {
-        timeline_data.push({ date: month[(i % 12)] + " " + startYear, risk: 0, total: 0, contRisk: 0, contTotal: 0, contPercent: 0,  percent: 0, timeframe: [] });
+        timeline_data.push({ date: month[(i % 12)] + " " + startYear, risk: 0, total: 0, contRisk: 0, contTotal: 0, contPercent: 0, percent: 0, timeframe: [] });
         template.push(month[i % 12] + " " + startYear);
       }
     }
@@ -113,7 +150,7 @@ const Timeline = ({ results, timeframe }) => {
     var thirtyone = [4, 6, 9, 11];
     var leap = [2008, 2012, 2016, 2020];
 
-    data.sort((a, b) => (a.date > b.date) ? 1 : -1)
+    // data.sort((a, b) => (a.date > b.date) ? 1 : -1)
 
     var timeline_data = [];
     var template = [];
@@ -137,12 +174,12 @@ const Timeline = ({ results, timeframe }) => {
     }
 
     if (numDays === 0) { //corner case if we are only given one date 
-      timeline_data.push({ date: month[startMonth] + " " + startDay, risk: 0, total: 0, contRisk: 0, contTotal: 0, contPercent: 0,  percent: 0, timeframe: [] });
+      timeline_data.push({ date: month[startMonth] + " " + startDay, risk: 0, total: 0, contRisk: 0, contTotal: 0, contPercent: 0, percent: 0, timeframe: [] });
       template.push(month[startMonth] + " " + startDay);
     } else {
       var i;
       for (i = 0; i < numDays; i++) {
-        timeline_data.push({ date: month[startMonth] + " " + startDay, risk: 0, total: 0, contRisk: 0, contTotal: 0, contPercent: 0,  percent: 0, timeframe: [] });
+        timeline_data.push({ date: month[startMonth] + " " + startDay, risk: 0, total: 0, contRisk: 0, contTotal: 0, contPercent: 0, percent: 0, timeframe: [] });
         template.push(month[startMonth] + " " + startDay);
         startDay++;
         var end1 = (startDay === 30 && thirty.indexOf(startMonth) !== -1);
@@ -166,7 +203,7 @@ const Timeline = ({ results, timeframe }) => {
     if (results.length === 0) {
       return results;
     } else {
-      results.sort((a, b) => (a.date > b.date) ? 1 : -1)
+      // results.sort((a, b) => (a.date > b.date) ? 1 : -1)
 
       var array = [];
       const start = { year: (results[0].date.split("-")[0]), month: (results[0].date.split("-")[1]), date: (results[0].date.split("-")[2]) };
@@ -202,10 +239,7 @@ const Timeline = ({ results, timeframe }) => {
         }
         index = template.indexOf(value);
         continuous += results[i].risk;
-  
-        // console.log(data[index].risk);
-        // console.log("continuous");
-        // console.log(continuous);
+
         data[index].total++;
         data[index].timeframe.push(results[i].date);
         data[index].contRisk = continuous;
@@ -217,10 +251,7 @@ const Timeline = ({ results, timeframe }) => {
         if (data[i].total === 0) {
           data[i] = { date: data[i].date };
         } else {
-          // console.log("total");
-          // console.log(data[i].contRisk);
-          // console.log(data[i].contTotal);
-          // console.log(((data[i].contRisk * 100) / (data[i].contTotal)).toFixed(2));
+
           data[i].contPercent = ((data[i].contRisk * 100) / (data[i].contTotal)).toFixed(2);
           data[i].percent = ((data[i].risk * 100) / (data[i].total)).toFixed(2);
         }
@@ -233,17 +264,48 @@ const Timeline = ({ results, timeframe }) => {
   //data used to create the line chart 
   var data = reorganizeData(results);
 
+  function setTimeframe(index) {
+    // console.log(payload.value);
+    // console.log(data[index])
+    var timeframe = data[index].timeframe;
+    var startDate = timeframe[0];
+    var endDate = timeframe[timeframe.length - 1];
+    setStart(startDate);
+    setEnd(endDate);
+    formStart.current.value = startDate;
+    formEnd.current.value = endDate;
+  }
+
   return (
-    <LineChart width={1000} height={500} data={data} margin={{ top: 50, right: 20, bottom: 5, left: 0 }}>
-       <Line name = "continuous risk percentage" connectNulls  type="monotone" dataKey="contPercent" stroke="#247893" fill="#247893" fillOpacity={0.4} activeDot={{r: 6, onClick: ()=> {alert("clicked")} }}/>
-      <Line name = "current timeframe risk percentage" connectNulls  type="monotone" dataKey="percent" stroke="#8884d8" fill="#8884d8" fillOpacity={0.4} activeDot={{ r: 6, onClick: ()=> {alert("clicked")} }} />
-     
-      <CartesianGrid stroke="#ccc" strokeDasharray="5 5" />
-      <XAxis dataKey="date" />
-      <YAxis dataKey="percent" domain = {[0, 100]}/>
-      {data.length !== 0 ? <Tooltip content={<CustomTooltip />} /> : null}
-      <Legend />
-    </LineChart>
+    <div>
+      <AreaChart onMouseDown={(e) => setTimeframe(e.activeTooltipIndex)} width={1000} height={500} data={data} margin={{ top: 50, right: 20, bottom: 5, left: 0 }}>
+        <Area name="continuous risk %" connectNulls type="monotone" dataKey="contPercent" stroke="#247893" fill="#247893" fillOpacity={0.4} activeDot={{ r: 8 }} />
+        <Area name="current timeframe risk %" connectNulls type="monotone" dataKey="percent" stroke="#8884d8" fill="#8884d8" fillOpacity={0.4} activeDot={{ r: 8 }} />
+
+        <CartesianGrid stroke="#ccc" strokeDasharray="5 5" />
+        <XAxis dataKey="date" />
+        <YAxis dataKey="percent" domain={[0, 100]} />
+        {data.length !== 0 ? <Tooltip content={<CustomTooltip />} /> : null}
+        <Legend />
+      </AreaChart>
+      <div>
+        {(results.length === 0) ? null :
+          <Row>
+            <Col></Col>
+            <Col>
+              <label htmlFor="startDate">start date: </label>
+              <input ref={formStart} type="date" id="startDate" name="startDate" onChange={handleFilter}></input>
+            </Col>
+            <Col>
+              <label htmlFor="endDate">end date: </label>
+              <input ref={formEnd} type="date" id="endDate" name="endDate" onChange={handleFilter}></input>
+            </Col>
+            <Col></Col>
+          </Row>
+        }
+        <PieChart results={pieChartData} />
+      </div>
+    </div>
   );
 }
 

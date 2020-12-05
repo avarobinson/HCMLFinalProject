@@ -20,11 +20,6 @@ class App extends Component {
         timeframe: 'pastweek',
       },
       errorMessage: '',
-      filterData: {
-        startDate: '',
-        endDate: '',
-      },
-
     };
   }
 
@@ -69,30 +64,6 @@ class App extends Component {
     })
   }
 
-  changeDates(){
-    var piechartData = this.state.piechartData;
-    piechartData = this.state.resultTable;
-    piechartData.sort((a, b) => (a.date > b.date) ? 1 : -1)
-    var newData = [];
-
-    var start = (this.state.filterData.startDate === '') ? piechartData[0].date  : this.state.filterData.startDate;
-
-    var end = (this.state.filterData.endDate === '') ? piechartData[piechartData.length - 1].date  : this.state.filterData.endDate;
-
-    var i;
-    for(i = 0; i < piechartData.length; i++){
-      if(piechartData[i].date >= start && piechartData[i].date <= end){
-        newData.push(piechartData[i]);
-      }
-    }
-    
-    piechartData = newData;
-    this.setState({ piechartData});
-
-  }
-
- 
-
   //resets data when user clicks reset button
   resetData = (event) => {
     this.setState({
@@ -136,6 +107,9 @@ class App extends Component {
 
     //data for breakdown table 
     const resultTable = this.state.resultTable;
+    if(resultTable.length !== 0){
+      resultTable.sort((a, b) => (a.date > b.date) ? 1 : -1);
+    }
 
     return (
       <Container>
@@ -188,23 +162,7 @@ class App extends Component {
         </div>
         <Timeline results={resultTable} timeframe={this.state.formData["timeframe"]} />
 
-        <div>
-          {(resultTable.length === 0) ? null :
-            <Row>
-              <Col></Col>
-              <Col>
-                <label htmlFor="startDate">start date: </label>
-                <input type="date" id="startDate" name="startDate" onChange={this.handleFilter}></input>
-              </Col>
-              <Col>
-                <label htmlFor="endDate">end date: </label>
-                <input type="date" id="endDate" name="endDate" onChange={this.handleFilter}></input>
-              </Col>
-              <Col></Col>
-            </Row>
-          }
-          <PieChart results={filterData} />
-        </div>
+       
       </Container>
     );
   }

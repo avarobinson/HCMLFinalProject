@@ -117,12 +117,17 @@ input {
     padding-left: 15px;
     padding-right: 15px;
     padding-top: 5px;
-    height: 160px;
+    height: 120px;
     color: gray;
+    margin-right: 20px;
 }
 
-.label {
+.labelRisk {
     color: #8884d8;
+}
+
+.labelCont {
+    color: #247893;
 }
 
 .test {

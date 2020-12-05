@@ -1,7 +1,7 @@
 import React from "react";
 import '../App.css';
-import { AreaChart, Area, CartesianGrid, XAxis, YAxis, Tooltip } from 'recharts';
-
+import { AreaChart, Area, Legend, LineChart, Line, CartesianGrid, XAxis, YAxis, Tooltip } from 'recharts';
+import { Form, Col, Container, Row, Button, InputGroup } from 'react-bootstrap';
 
 //custom tooltip to show data when hovering over points 
 function CustomTooltip({ payload, active }) {
@@ -19,10 +19,11 @@ function CustomTooltip({ payload, active }) {
     }
     return (
       <div className="custom-tooltip">
-        <p className="label"> {`timeframe : ${range}`}</p>
-        <p className="risk">{`percent : ${payload[0].payload.percent}%`}</p>
-        <p className="risk">{`at-risk tweets: ${payload[0].payload.risk}`}</p>
-        <p className="risk">{`total tweets: ${payload[0].payload.total}`}</p>
+        <p className="risk"> {`${range}`}</p>
+        <p className="labelRisk">{`percent : ${payload[0].payload.percent}%`}</p>
+        <p className="labelCont">{`continuous percent : ${payload[0].payload.contPercent}%`}</p>
+        {/* <p className="risk">{`at-risk tweets: ${payload[0].payload.risk}`}</p>
+        <p className="risk">{`total tweets: ${payload[0].payload.total}`}</p> */}
       </div>
     );
   }
@@ -43,7 +44,7 @@ const Timeline = ({ results, timeframe }) => {
     var endYear = parseInt(end.year);
     var i
     for (i = startYear; i <= endYear; i++) {
-      timeline_data.push({ date: i, risk: 0, total: 0, percent: 0, timeframe: [] });
+      timeline_data.push({ date: i, risk: 0, total: 0, contRisk: 0, contTotal: 0, contPercent: 0, percent: 0, timeframe: [] });
       template.push(i);
     }
 
@@ -67,7 +68,7 @@ const Timeline = ({ results, timeframe }) => {
 
     var i
     for (i = startSeason; i <= (startSeason + numSeasons); i++) {
-      timeline_data.push({ date: season[i % 4] + " " + startYear, risk: 0, total: 0, percent: 0, timeframe: [] });
+      timeline_data.push({ date: season[i % 4] + " " + startYear, risk: 0, total: 0, contRisk: 0, contTotal: 0, contPercent: 0, percent: 0, timeframe: [] });
       template.push(season[i % 4] + " " + startYear);
       if (i % 4 === 0) {
         startYear++;
@@ -94,11 +95,11 @@ const Timeline = ({ results, timeframe }) => {
     var i
     for (i = startMonth; i <= (startMonth + numMonths); i++) {
       if (i % 12 === 0) {
-        timeline_data.push({ date: month[12] + " " + startYear, risk: 0, total: 0, percent: 0, timeframe: [] });
+        timeline_data.push({ date: month[12] + " " + startYear, risk: 0, total: 0, contRisk: 0, contTotal: 0, contPercent: 0,  percent: 0, timeframe: [] });
         template.push(month[12] + " " + startYear);
         startYear++;
       } else {
-        timeline_data.push({ date: month[(i % 12)] + " " + startYear, risk: 0, total: 0, percent: 0, timeframe: [] });
+        timeline_data.push({ date: month[(i % 12)] + " " + startYear, risk: 0, total: 0, contRisk: 0, contTotal: 0, contPercent: 0,  percent: 0, timeframe: [] });
         template.push(month[i % 12] + " " + startYear);
       }
     }
@@ -136,12 +137,12 @@ const Timeline = ({ results, timeframe }) => {
     }
 
     if (numDays === 0) { //corner case if we are only given one date 
-      timeline_data.push({ date: month[startMonth] + " " + startDay, risk: 0, total: 0, percent: 0, timeframe: [] });
+      timeline_data.push({ date: month[startMonth] + " " + startDay, risk: 0, total: 0, contRisk: 0, contTotal: 0, contPercent: 0,  percent: 0, timeframe: [] });
       template.push(month[startMonth] + " " + startDay);
     } else {
       var i;
       for (i = 0; i < numDays; i++) {
-        timeline_data.push({ date: month[startMonth] + " " + startDay, risk: 0, total: 0, percent: 0, timeframe: [] });
+        timeline_data.push({ date: month[startMonth] + " " + startDay, risk: 0, total: 0, contRisk: 0, contTotal: 0, contPercent: 0,  percent: 0, timeframe: [] });
         template.push(month[startMonth] + " " + startDay);
         startDay++;
         var end1 = (startDay === 30 && thirty.indexOf(startMonth) !== -1);
@@ -181,6 +182,7 @@ const Timeline = ({ results, timeframe }) => {
       var template = array[1];
       var type = array[2];
       var i;
+      var continuous = 0;
 
       for (i = 0; i < results.length; i++) {
         var date = results[i].date.split("-");
@@ -199,17 +201,27 @@ const Timeline = ({ results, timeframe }) => {
           value = parseInt(date[0]);
         }
         index = template.indexOf(value);
+        continuous += results[i].risk;
+  
+        // console.log(data[index].risk);
+        // console.log("continuous");
+        // console.log(continuous);
         data[index].total++;
-
         data[index].timeframe.push(results[i].date);
+        data[index].contRisk = continuous;
+        data[index].contTotal = i + 1;
         data[index].risk += results[i].risk;
       }
-
 
       for (i = 0; i < data.length; i++) {
         if (data[i].total === 0) {
           data[i] = { date: data[i].date };
         } else {
+          // console.log("total");
+          // console.log(data[i].contRisk);
+          // console.log(data[i].contTotal);
+          // console.log(((data[i].contRisk * 100) / (data[i].contTotal)).toFixed(2));
+          data[i].contPercent = ((data[i].contRisk * 100) / (data[i].contTotal)).toFixed(2);
           data[i].percent = ((data[i].risk * 100) / (data[i].total)).toFixed(2);
         }
       }
@@ -222,13 +234,16 @@ const Timeline = ({ results, timeframe }) => {
   var data = reorganizeData(results);
 
   return (
-    <AreaChart width={1000} height={500} data={data} margin={{ top: 50, right: 20, bottom: 5, left: 0 }}>
-      <Area connectNulls type="monotone" dataKey="percent" stroke="#8884d8" fill="#8884d8" fillOpacity={0.3} />
+    <LineChart width={1000} height={500} data={data} margin={{ top: 50, right: 20, bottom: 5, left: 0 }}>
+       <Line name = "continuous risk percentage" connectNulls  type="monotone" dataKey="contPercent" stroke="#247893" fill="#247893" fillOpacity={0.4} activeDot={{r: 6, onClick: ()=> {alert("clicked")} }}/>
+      <Line name = "current timeframe risk percentage" connectNulls  type="monotone" dataKey="percent" stroke="#8884d8" fill="#8884d8" fillOpacity={0.4} activeDot={{ r: 6, onClick: ()=> {alert("clicked")} }} />
+     
       <CartesianGrid stroke="#ccc" strokeDasharray="5 5" />
       <XAxis dataKey="date" />
       <YAxis dataKey="percent" domain = {[0, 100]}/>
       {data.length !== 0 ? <Tooltip content={<CustomTooltip />} /> : null}
-    </AreaChart>
+      <Legend />
+    </LineChart>
   );
 }
 

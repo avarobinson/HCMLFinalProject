@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useRef } from "react";
 import '../App.css';
 import { AreaChart, Area, Legend, LineChart, Line, CartesianGrid, XAxis, YAxis, Tooltip } from 'recharts';
-import { Col, Row, } from 'react-bootstrap';
+// import { Col, Row, } from 'react-bootstrap';
 import PieChart from './PieChartComponent';
+import { Form, Col, Container, Row, Button, InputGroup } from 'react-bootstrap';
 
 //custom tooltip to show data when hovering over points 
 function CustomTooltip({ payload, active }) {
-  // console.log(payload);
   if (active && payload.length !== 0) {
     var timeframe = payload[0].payload.timeframe;
     var startDate = timeframe[0];
@@ -22,8 +22,9 @@ function CustomTooltip({ payload, active }) {
     return (
       <div className="custom-tooltip">
         <p className="risk"> {`${range}`}</p>
-        <p className="labelRisk">{`percent : ${payload[0].payload.percent}%`}</p>
-        <p className="labelCont">{`continuous percent : ${payload[0].payload.contPercent}%`}</p>
+        <p className="risk"> {`# tweets in this timeframe: ${payload[0].payload.total}`}</p>
+        <p className="labelRisk">{`% risk: ${payload[0].payload.percent}%`}</p>
+        <p className="labelCont">{`% continuous risk: ${payload[0].payload.contPercent}%`}</p>
       </div>
     );
   }
@@ -54,12 +55,14 @@ const Timeline = ({ results, timeframe }) => {
   }
 
   useEffect(() => {
+    setPieChartData(results);
     if (results.length !== 0) {
       var piechartData = results;
-      // piechartData.sort((a, b) => (a.date > b.date) ? 1 : -1)
       var newData = [];
       var start = (startDate === '') ? piechartData[0].date : startDate;
       var end = (endDate === '') ? piechartData[piechartData.length - 1].date : endDate;
+      formStart.current.value = start;
+      formEnd.current.value = end;
       var i;
       for (i = 0; i < piechartData.length; i++) {
         if (piechartData[i].date >= start && piechartData[i].date <= end) {
@@ -90,7 +93,6 @@ const Timeline = ({ results, timeframe }) => {
 
   //creates initial season-timespan, then aggregates data by season (dividing a year into 4 parts)
   function groupBySeason(data, start, end) {
-    // data.sort((a, b) => (a.date > b.date) ? 1 : -1)
     var timeline_data = [];
     var template = [];
     var startSeason = (parseInt(start.month) === 12) ? 3 : Math.floor(parseInt(start.month) / 3);
@@ -117,7 +119,6 @@ const Timeline = ({ results, timeframe }) => {
   //creates initial month-timespan, then aggregates data by month
   function groupByMonth(data, start, end) {
 
-    // data.sort((a, b) => (a.date > b.date) ? 1 : -1)
     var timeline_data = [];
     var template = [];
     var startMonth = parseInt(start.month);
@@ -145,12 +146,9 @@ const Timeline = ({ results, timeframe }) => {
 
   //creates initial timespan, then aggregates data by date
   function groupByDate(data, start, end) {
-
     var thirty = [1, 3, 5, 7, 8, 10, 12];
     var thirtyone = [4, 6, 9, 11];
     var leap = [2008, 2012, 2016, 2020];
-
-    // data.sort((a, b) => (a.date > b.date) ? 1 : -1)
 
     var timeline_data = [];
     var template = [];
@@ -203,8 +201,6 @@ const Timeline = ({ results, timeframe }) => {
     if (results.length === 0) {
       return results;
     } else {
-      // results.sort((a, b) => (a.date > b.date) ? 1 : -1)
-
       var array = [];
       const start = { year: (results[0].date.split("-")[0]), month: (results[0].date.split("-")[1]), date: (results[0].date.split("-")[2]) };
       const end = { year: (results[results.length - 1].date.split("-")[0]), month: (results[results.length - 1].date.split("-")[1]), date: (results[results.length - 1].date.split("-")[2]) };
@@ -265,51 +261,48 @@ const Timeline = ({ results, timeframe }) => {
   var data = reorganizeData(results);
 
   function setTimeframe(index) {
-    // console.log(payload.value);
-    // console.log(data[index])
     var timeframe = data[index].timeframe;
     var startDate = timeframe[0];
     var endDate = timeframe[timeframe.length - 1];
     setStart(startDate);
     setEnd(endDate);
-    formStart.current.value = startDate;
-    formEnd.current.value = endDate;
   }
 
   return (
     <div>
-      <div className = "linechart"> 
-      <p className = "graph-title"> Risk of Depression Over Time</p>
-      <p className = "description"> click on the data points for more details via the pie chart</p>
-      <AreaChart onMouseDown={results.length === 0 ? null : (e) => setTimeframe(e.activeTooltipIndex)} width={1000} height={500} data={data} margin={{ top: 0, right: 20, bottom: 5, left: 0 }}>
-        <Area name="continuous risk %" connectNulls type="monotone" dataKey="contPercent" stroke="#247893" fill="#247893" fillOpacity={0.4} activeDot={{ r: 8 }} />
-        <Area name="current timeframe risk %" connectNulls type="monotone" dataKey="percent" stroke="#8884d8" fill="#8884d8" fillOpacity={0.4} activeDot={{ r: 8 }} />
+      <div className="linechart">
+        <p className="graph-title"> Risk of Depression Over Time</p>
+        <p className="description"> click on the data points for more details via the pie chart</p>
+        <AreaChart onMouseDown={results.length === 0 ? null : (e) => setTimeframe(e.activeTooltipIndex)} width={1000} height={500} data={data} margin={{ top: 0, right: 20, bottom: 5, left: 0 }}>
+          <Area name="continuous risk percentage" connectNulls type="monotone" dataKey="contPercent" stroke="#247893" fill="#247893" fillOpacity={0.4} activeDot={{ r: 8 }} />
+          <Area name="current timeframe risk percentage" connectNulls type="monotone" dataKey="percent" stroke="#8884d8" fill="#8884d8" fillOpacity={0.4} activeDot={{ r: 8 }} />
 
-        <CartesianGrid stroke="#ccc" strokeDasharray="5 5" />
-        <XAxis dataKey="date" />
-        <YAxis dataKey="percent" domain={[0, 100]} />
-        {data.length !== 0 ? <Tooltip content={<CustomTooltip />} /> : null}
-        <Legend />
-      </AreaChart>
+          <CartesianGrid stroke="#ccc" strokeDasharray="5 5" />
+          <XAxis dataKey="date" />
+          <YAxis dataKey="percent" domain={[0, 100]} />
+          {data.length !== 0 ? <Tooltip content={<CustomTooltip />} /> : null}
+          <Legend />
+        </AreaChart>
       </div>
-      
-      <div className = "piechart">
-      {results.length === 0 ?
-      <p className = "graph-title"> Categorized Tweets </p> : <p className = "graph-title"> Categorized Tweets Between {startDate} and {endDate}</p>}
-      <p className = "description"> view the categorized tweets for a specific timeframe </p>
+
+      <div className="piechart">
+        {(startDate === '' && endDate === '') ?
+          <p className="graph-title"> Categorized Tweets </p> : <p className="graph-title"> Categorized Tweets Between {startDate} and {endDate}</p>}
+        <p className="description"> view the categorized tweets from a specific timeframe </p>
         {(results.length === 0) ? null :
-          <Row>
-            <Col></Col>
-            <Col>
-              <label htmlFor="startDate">start date: </label>
-              <input ref={formStart} type="date" id="startDate" name="startDate" onChange={handleFilter}></input>
-            </Col>
-            <Col>
-              <label htmlFor="endDate">end date: </label>
-              <input ref={formEnd} type="date" id="endDate" name="endDate" onChange={handleFilter}></input>
-            </Col>
-            <Col></Col>
-          </Row>
+          <Form>
+            <Row>
+              <Col></Col>
+              <Col>
+                <Form.Control type="date" ref={formStart} id="startDate" onChange={handleFilter} />
+              </Col>
+              <p className="divider"> to </p>
+              <Col>
+                <Form.Control type="date" ref={formEnd} id="endDate" onChange={handleFilter} />
+              </Col>
+              <Col></Col>
+            </Row>
+          </Form>
         }
         <PieChart results={pieChartData} />
       </div>

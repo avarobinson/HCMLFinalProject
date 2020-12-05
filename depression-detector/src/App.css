@@ -134,9 +134,11 @@ input {
     padding-left: 15px;
     padding-right: 15px;
     padding-top: 5px;
+    padding: 20px;
     height: 120px;
     color: gray;
     margin-right: 20px;
+    line-height: 60%
 }
 
 .labelRisk {
@@ -153,7 +155,6 @@ input {
 
 .linechart {
     margin-top: 50px;
-    text-align: center;
     color: gray;
 }
 
@@ -170,4 +171,10 @@ input {
 
 .piechart {
     margin-top: 100px;
+}
+
+.divider {
+    color: gray;
+    font: 10px;
+    margin-top: 5px;
 }

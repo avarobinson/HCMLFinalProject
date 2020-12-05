@@ -6,7 +6,7 @@ import "../App.css";
 import { BsArrowDown, BsArrowUp } from "react-icons/bs";
 
 const Table = ({ data, columns }) => {
-    
+    // console.log(data);
     //handles table properties 
     const {
         getTableProps,
@@ -41,14 +41,13 @@ const Table = ({ data, columns }) => {
             />
 
             <div>
-                <table {...getTableProps()} >
+                <table className = "styled-table" {...getTableProps()} >
                     <thead>
                         {headerGroups.map(headerGroup => (
                             <tr {...headerGroup.getHeaderGroupProps()}>
                                 {headerGroup.headers.map(column => (
-                                    <th {...column.getHeaderProps(column.getSortByToggleProps())}>
+                                    <th {...column.getHeaderProps()}>
                                         {column.render("Header")}
-                                        {column.isSorted ? column.isSortedDesc ? <BsArrowDown /> : <BsArrowUp /> : ""}
                                     </th>
                                
                                 ))}

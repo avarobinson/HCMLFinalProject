@@ -155,7 +155,7 @@ input {
     border-color: #8884d8 !important;
 }
 
-.button:hover {
+.button:hover:enabled {
     background-color: #5a56bf !important;
 }
 
@@ -210,6 +210,8 @@ input {
 
 .tableRow {
     color: gray !important;
+    z-index: 1;
+    position: relative;
 }
 
 #tweet {

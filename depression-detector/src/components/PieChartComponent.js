@@ -226,10 +226,10 @@ const PieChart = ({ results }) => {
     }, [data]);
 
     const columns = [
-        {id: 'date', label:"Date", minWidth: 120},
-        {id: 'time', label: "Time",  minWidth: 50},
+        {id: 'date', label:"Date", minWidth: 50},
+        {id: 'time', label: "Time",  minWidth: 30},
         {id: 'tweet', label: "Tweet",minWidth: 170, },
-        {id: 'risk', label: "Risk", minWidth: 20,}
+        {id: 'risk', label: "Risk", minWidth: 10,}
     ]
 
     return (<div className="visualization" >

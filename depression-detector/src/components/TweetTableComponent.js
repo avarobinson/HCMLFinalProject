@@ -62,7 +62,7 @@ const TweetTable = ({ data, columns }) => {
                     {columns.map((column) => {
                       const value = row[column.id];
                       return (
-                        <TableCell className = "tableRow" key={column.id} align={column.align}>
+                        <TableCell className = "tableRow" key={column.id} id={column.id}>
                           {value}
                         </TableCell>
                       );

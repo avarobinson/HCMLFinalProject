@@ -211,3 +211,9 @@ input {
 .tableRow {
     color: gray !important;
 }
+
+#tweet {
+    overflow-y: scroll !important;
+    white-space: pre-wrap !important;
+    max-width: 300px !important;
+}

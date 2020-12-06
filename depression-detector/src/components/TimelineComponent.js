@@ -288,7 +288,7 @@ const Timeline = ({ results, timeframe }) => {
       <div className="piechart">
         {(startDate === '' && endDate === '') ?
           <p className="graph-title"> Categorized Tweets </p> : <p className="graph-title"> Categorized Tweets Between {startDate} and {endDate}</p>}
-        <p className="description"> view the categorized tweets from a specific timeframe </p>
+        <p className="description"> view the categorized tweets from a specific timeframe of your choosing</p>
         {(results.length === 0) ? null :
           <Form>
             <Row>

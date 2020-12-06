@@ -103,6 +103,8 @@ def clean_and_format_data(data):
     # remove emojis 
     df['tweet'] = df['tweet'].apply(lambda x: x.encode('ascii', 'ignore').decode('ascii'))
     
+    # remove hashtags 
+    df['tweet'] = df['tweet'].str.replace('#', '')
     # remove usernames 
     # for i in range(len(df['tweet'])):
     #     try:

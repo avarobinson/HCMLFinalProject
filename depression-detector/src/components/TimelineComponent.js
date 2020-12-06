@@ -1,9 +1,8 @@
 import React, { useState, useEffect, useRef } from "react";
 import '../App.css';
-import { AreaChart, Area, Legend, LineChart, Line, CartesianGrid, XAxis, YAxis, Tooltip } from 'recharts';
-// import { Col, Row, } from 'react-bootstrap';
+import { AreaChart, Area, Legend, CartesianGrid, XAxis, YAxis, Tooltip } from 'recharts';
 import PieChart from './PieChartComponent';
-import { Form, Col, Container, Row, Button, InputGroup } from 'react-bootstrap';
+import { Form, Col, Row} from 'react-bootstrap';
 
 //custom tooltip to show data when hovering over points 
 function CustomTooltip({ payload, active }) {
@@ -70,6 +69,8 @@ const Timeline = ({ results, timeframe }) => {
       setPieChartData(newData);
     }else{
       setPieChartData(results);
+      setStart('');
+      setEnd('');
     }
   }, [startDate, endDate, results])
 
@@ -278,7 +279,7 @@ const Timeline = ({ results, timeframe }) => {
           <Area name="current timeframe risk percentage" connectNulls type="monotone" dataKey="percent" stroke="#8884d8" fill="#8884d8" fillOpacity={0.4} activeDot={{ r: 8 }} />
 
           <CartesianGrid stroke="#ccc" strokeDasharray="5 5" />
-          <XAxis dataKey="date" />
+          <XAxis dataKey="date"/>
           <YAxis dataKey="percent" domain={[0, 100]} />
           {data.length !== 0 ? <Tooltip content={<CustomTooltip />} /> : null}
           <Legend />

@@ -178,6 +178,12 @@ const PieChart = ({ results }) => {
             .transition()
             .duration(1000)
             .attr("transform", "rotate(" + (0) + ")");
+        
+            d3.select("g.chart")
+                    .transition()
+                    .duration(1000)
+                    .attr("transform", "translate(" + (size / 1.2) + " " + (size / 3) + ")");
+
 
         const groupWithUpdate = groupWithData
             .enter()

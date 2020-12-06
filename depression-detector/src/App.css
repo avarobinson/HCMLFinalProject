@@ -192,7 +192,7 @@ input {
 }
 
 .tableContainer {
-    height: 440px;
+    max-height: 440px;
     border-radius: 10px;
 }
 

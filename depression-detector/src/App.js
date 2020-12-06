@@ -70,11 +70,13 @@ class App extends Component {
       //notifies user that they submitted an invalid twitter handle 
       this.setState({ errorMessage: error.message })
     });
-
+    
   };
 
   render() {
     const formData = this.state.formData;
+    const user = formData.username;
+    const use = user;
     const userPercentage = this.state.userPercentage;
 
     //data for breakdown table 
@@ -90,7 +92,7 @@ class App extends Component {
         
         </div>
         <div className="content">
-        <p className= "caption"> note: this analysis is only based on the language you use on twitter, and is by no means a fully holistic assessment.</p>
+        <p className= "caption"> Note: As this analysis is only based on the language you use on Twitter, it is not a holistic assessment of your mental wellbeing.</p>
           <Form className = "userForm">
             <Row>
               <Col>
@@ -137,7 +139,7 @@ class App extends Component {
           </div>
           {userPercentage && userPercentage != "-1" ? 
             <div className="percentage"> 
-              <h4> {formData.username}'s risk percentage: {userPercentage.toFixed(2)} %</h4> 
+              <h4> {use}'s risk percentage: {userPercentage.toFixed(2)} %</h4> 
               <p> If you are having thoughts of suicide and need support right now, there are people who care about your life and will provide you with resources that can help. Call the toll-free National Suicide Prevention Lifeline at <b>1-800-273-TALK</b> (8255) to be connected with a trained counselor at a crisis center anytime. </p>
               <p> For more resources to help you manage depression and take care of your mental health, visit 
                 <a href="https://www.everydayhealth.com/depression/guide/resources/" target="_blank"> everydayhealth.com </a> 

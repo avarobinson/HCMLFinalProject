@@ -163,3 +163,51 @@ input {
     text-align: center;
     color: #8884d8;
 }
+
+.searchBar {
+    border-radius: 5px;
+    color: gray;
+    border-color: #D3D3D3;
+    /* //color: #8884d8; */
+    padding: 10px;
+    margin-bottom: 30px;
+}
+
+.searchBar::placeholder {
+    color: gray;
+}
+
+.tableHeader {
+    font-size: 16px !important;
+    background-color: white !important;
+    color: #8884d8 !important;
+    /* color: gray !important;  */
+    font-weight: 549 !important;
+    text-align: center !important;
+}
+
+.tweetTable {
+    width: 600px !important;
+    border-radius: 10px;
+}
+
+.tableContainer {
+    height: 440px;
+    border-radius: 10px;
+}
+
+.cell:hover {
+    background-color: #f0f0ff !important;
+}
+
+.cell:hover .tableRow {
+    color: #484848 !important;
+}
+
+.tableBody {
+    color: gray;
+}
+
+.tableRow {
+    color: gray !important;
+}

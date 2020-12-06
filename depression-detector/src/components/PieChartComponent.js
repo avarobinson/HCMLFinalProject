@@ -45,8 +45,6 @@ const PieChart = ({ results }) => {
         }
         var riskTweets = [];
         var noRiskTweets = [];
-        var riskPercent = 0;
-        var noRiskPercent = 0;
 
         var i;
         for (i = 0; i < results.length; i++) {

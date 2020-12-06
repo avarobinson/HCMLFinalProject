@@ -36,7 +36,7 @@ const PieChart = ({ results }) => {
 
     //cleans up data given for the pie chart and table to process 
     useEffect(() => {
-       // console.log("hi2")
+        setData([]);
         setTable(false);
         setCurr("");
         setCount(0);
@@ -162,6 +162,7 @@ const PieChart = ({ results }) => {
 
     //creates actual chart 
     useEffect(() => {
+        setData([]);
         setCount(0);
         setCurr("");
         const pie = createPie(data);

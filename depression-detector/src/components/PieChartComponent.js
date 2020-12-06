@@ -1,13 +1,13 @@
 import React, { useEffect, useRef, useState } from "react";
 import * as d3 from "d3";
-import Table from './TableComponent';
+import Table2 from './TableComponent2';
 import '../App.css';
 
 
 const PieChart = ({ results }) => {
 
     //cleaned up data 
-    const [data, setResults] = useState(reorganizeData(results));
+    const [data, setResults] = useState([{ label: "no data", value: 100.00, array: [] }]);
 
     //pie chart variables 
     var outerRadius = 200;
@@ -35,7 +35,11 @@ const PieChart = ({ results }) => {
 
 
     //cleans up data given for the pie chart and table to process 
-    function reorganizeData(results) {
+    useEffect(() => {
+       // console.log("hi2")
+        setTable(false);
+        setCurr("");
+        setCount(0);
         if (results.length === 0) {
             return [{ label: "no data", value: 100.00, array: [] }];
         }
@@ -49,116 +53,128 @@ const PieChart = ({ results }) => {
             if (results[i].risk <= 0.5) { //checks risk assigned and divides given tweets into risk or not-risk groups
                 noRiskTweets.push({ tweet: results[i].tweet, date: results[i].date, time: results[i].time, risk: results[i].risk });
             } else {
-                riskTweets.push({ tweet: results[i].tweet, date: results[i].date, time: results[i].time, risk: results[i].risk});
+                riskTweets.push({ tweet: results[i].tweet, date: results[i].date, time: results[i].time, risk: results[i].risk });
             }
         }
-        var risk = ((riskTweets.length* 100) / results.length).toFixed(2);
+        var risk = ((riskTweets.length * 100) / results.length).toFixed(2);
         var noRisk = ((noRiskTweets.length * 100) / results.length).toFixed(2);
 
-        return [{ label: "at risk", value: risk, array: riskTweets }, { label: "not at risk", value: noRisk, array: noRiskTweets }];
-    }
+        setResults([{ label: "at_risk", value: risk, array: riskTweets }, { label: "not_at_risk", value: noRisk, array: noRiskTweets }]);
+
+    }, [results])
 
     //function to show details of arcs in pie chart 
 
     const [showTable, setTable] = useState(false);
-    const [prevTable, setChange] = useState("");
+    const [prevTable, setPrev] = useState("");
+    const[sliceValue, setSlice] = useState("");
+    var [currTable, setCurr] = useState("");
     const [tableData, setData] = useState([]);
-
-    useEffect(() => {
-        var data = reorganizeData(results);
-        setResults(data);
-        setTable(false);
-        setData([]);
-        setChange("");
-
-        d3.select("g.chart")
-            .transition()
-            .duration(1000)
-            .attr("transform", "translate(" + (size /1.2 ) + " " + (size / 3) + ")");
-
-        d3.select("g.square")
-            .transition()
-            .duration(1000)
-            .attr("transform", "rotate(" + (0) + ")");
-        
-    }, [results])
-
+    var [counter, setCount] = useState(0);
 
     function change(d, i) {
-        
-        var res = (i.id).split(",");
-        var startAngle = parseFloat(res[0]);
-        var endAngle = parseFloat(res[1]);
-        var angle = 270 - ((startAngle * (180 / Math.PI)) + ((endAngle - startAngle) * (180 / Math.PI) / 2))
+        setCount(counter++);
+        setSlice("" + i.dataset.value);
+        setTable(currTable !== i.id);
+        setCurr(i.id + " " + counter);
+    };
 
-        if (prevTable !== res[2]) {
-            if (res[2] === "at risk") {
-                setData(data[0].array);
+    useEffect(() => {
+        if (results.length !== 0 && data.length !== 0) {
+            var current = currTable.split(" ");
+            var prev = prevTable.split(" ");
 
+            var res = (sliceValue).split(",");
+
+                var startAngle = parseFloat(res[0]);
+                var endAngle = parseFloat(res[1]);
+                var angle = 270 - ((startAngle * (180 / Math.PI)) + ((endAngle - startAngle) * (180 / Math.PI) / 2));
+
+            if (current[0] !==  prev[0]) {
+                
+                if (res[2] === "at_risk") {
+                    setData(data[0].array);
+
+                } else {
+                    setData(data[1].array);
+                }
+ 
+                d3.select("text.center")
+                    .text("% " + res[2] + " tweets: " + res[3])
+                    .style("font-size", 20)
+                    .style("fill", "#5a56bf")
+                    .attr("transform", "rotate(" + (360 - angle) + ")");
+
+                d3.select("g.chart")
+                    .transition()
+                    .duration(1000)
+                    .attr("transform", "translate(" + (size * 1.2) + " " + (size / 2.3) + ")");
+
+                d3.selectAll("path.arc")
+                    .transition()
+                    .duration(1000)
+                    .style("fill", "#8884D7")
+                    .attr("d", createArc)
+
+                d3.select("#" + res[2])
+                    .transition()
+                    .duration(1000)
+                    .style("fill", "#5a56bf")
+                    .attr("d", arcOver)
+
+                d3.select("g.square")
+                    .transition()
+                    .duration(1000)
+                    .attr("transform", "rotate(" + angle + ")");
+               setPrev(currTable);
+      
             } else {
-                setData(data[1].array);
+                setData([]);
+
+                d3.select("text.center")
+                    .text("click an arc to learn more")
+                    .style("font-size", 15)
+                    .style("fill", "gray")
+                    .attr("transform", "rotate(" + (0) + ")");
+
+                d3.select("g.chart")
+                    .transition()
+                    .duration(1000)
+                    .attr("transform", "translate(" + (size / 1.2) + " " + (size / 3) + ")");
+
+                d3.select("#" + res[2])
+                    .transition()
+                    .duration(1000)
+                    .style("fill", "#8884D7")
+                    .attr("d", createArc);
+
+                d3.select("g.square")
+                    .transition()
+                    .duration(1000)
+                    .attr("transform", "rotate(" + (0) + ")");
+
+                setPrev("");
 
             }
-            setChange(res[2]);
-            setTable(true);
-            d3.select("text.center")
-                .text("% " + res[2] + " tweets: " + res[3])
-                .style("font-size", 20)
-                .style("fill", "#5a56bf")
-                .attr("transform", "rotate(" + (360 - angle) + ")");
-
-            d3.select("g.chart")
-                .transition()
-                .duration(1000)
-                .attr("transform", "translate(" + (size * 1.2) + " " + (size / 2.3) + ")");
-
-            d3.select(i)
-                .transition()
-                .duration(1000)
-                .attr("fill", "#5a56bf")
-                .attr("d", arcOver);
-
-            d3.select("g.square")
-                .transition()
-                .duration(1000)
-                .attr("transform", "rotate(" + angle + ")");
-
-
-        } else {
-            setTable(false);
-            setData([]);
-            setChange("");
-
-            d3.select("g.chart")
-                .transition()
-                .duration(1000)
-                .attr("transform", "translate(" + (size /1.2 ) + " " + (size / 3) + ")");
-                
-
-            d3.select(i)
-                .transition()
-                .duration(1000)
-                .attr("fill", "#8884D7")
-                .attr("d", createArc);
-
-            d3.select("g.square")
-                .transition()
-                .duration(1000)
-                .attr("transform", "rotate(" + (0) + ")");
-
+           
         }
-
-    };
+    }, [showTable, currTable])
 
     //creates actual chart 
     useEffect(() => {
-
+        setCount(0);
+        setCurr("");
         const pie = createPie(data);
         const prevData = createPie(cache.current);
         const square = d3.select("g.square");
         const groupWithData = square.selectAll("g.arc").data(pie);
         d3.selectAll("text.center").remove();
         groupWithData.exit().remove();
+
+        d3.select("g.square")
+            .transition()
+            .duration(1000)
+            .attr("transform", "rotate(" + (0) + ")");
 
         const groupWithUpdate = groupWithData
             .enter()
@@ -182,56 +198,40 @@ const PieChart = ({ results }) => {
         path
             .transition().duration(1000)
             .attr("class", "arc")
-            .attr("id", (d) => [d.startAngle, d.endAngle, d.data.label, d.data.value])
-            .attr("value", (d) => d.startAngle)
-            .attr("fill", "#8884d8")
+            .attr("id", (d) => d.data.label)
+            .attr("data-value", (d) => [d.startAngle, d.endAngle, d.data.label, d.data.value])
+            .style("fill", "#8884d8")
             .attrTween("d", arcTween)
-
-            const center = d3.select("g.square")
+     
+        const center = d3.select("g.square")
             .append("text")
             .attr("text-anchor", "middle")
             .attr("class", "center")
-             
-        if(results.length === 0){ 
-            center
-            .style("fill", "gray")
-            .style("font-size", 18)
-            .text("no data available");
-        }else{
-            center
-            .style("fill", "gray")
-            .style("font-size", 18)
-            .text("click an arc to learn more");
-        }
 
+        if (results.length === 0) {
+            center
+                .style("fill", "gray")
+                .style("font-size", 18)
+                .text("no data available");
+        } else {
+            center
+                .style("fill", "gray")
+                .style("font-size", 15)
+                .text("click an arc to learn more");
+        }
         cache.current = data;
-    });
+    }, [data]);
 
-    const columns = [{
-        Header: "Tweet Assessment Breakdown",
-        columns: [{
-            Header: "Date",
-            accessor: "date"
-        },
-        {
-            Header: "Time",
-            accessor: "time"
-        },
-        {
-            Header: "Tweet",
-            accessor: "tweet",
-            style: { 'whiteSpace': 'unset' }
-        },
-        {
-            Header: "Risk",
-            accessor: "risk"
-        }
-        ]
-    }];
+    const columns = [
+        {id: 'date', label:"Date", minWidth: 120},
+        {id: 'time', label: "Time",  minWidth: 50},
+        {id: 'tweet', label: "Tweet",minWidth: 170, },
+        {id: 'risk', label: "Risk", minWidth: 20,}
+    ]
 
     return (<div className="visualization" >
-        <div className={showTable ? "fadeIn" : "fadeOut"} >
-            <Table data={tableData}
+        <div className={tableData.length !== 0 ? "fadeIn" : "fadeOut"} >
+            <Table2 data={tableData}
                 columns={columns} />
         </div>
         <div className="test">

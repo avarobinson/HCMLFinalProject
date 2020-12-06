@@ -74,7 +74,6 @@ class App extends Component {
   };
 
   render() {
-
     const formData = this.state.formData;
     const userPercentage = this.state.userPercentage;
 

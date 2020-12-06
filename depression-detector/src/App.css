@@ -43,7 +43,8 @@
     margin-left: auto;
 } */
 
-thead,
+
+/* thead,
 tbody {
     display: block;
     width: 500px;
@@ -70,7 +71,7 @@ table td {
     padding: 10px;
     border-bottom: 1px solid gray;
     column-width: 200px;
-}
+} */
 
 input {
     padding: 5px;

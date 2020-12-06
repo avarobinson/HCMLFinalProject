@@ -44,9 +44,8 @@ const Timeline = ({ results, timeframe }) => {
 
   function handleFilter(event) {
     const value = event.target.value;
-    const name = event.target.name;
-
-
+    const name = event.target.id;
+    console.log(name);
     if (name === "startDate") {
       setStart(value);
     } else {

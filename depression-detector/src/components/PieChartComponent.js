@@ -41,7 +41,7 @@ const PieChart = ({ results }) => {
         setCurr("");
         setCount(0);
         if (results.length === 0) {
-            return [{ label: "no data", value: 100.00, array: [] }];
+            setResults([{ label: "no data", value: 100.00, array: [] }]);
         }
         var riskTweets = [];
         var noRiskTweets = [];
@@ -72,6 +72,7 @@ const PieChart = ({ results }) => {
     const [tableData, setData] = useState([]);
     var [counter, setCount] = useState(0);
 
+    //notifies states that the user has clicked the pie chart 
     function change(d, i) {
         setCount(counter++);
         setSlice("" + i.dataset.value);
@@ -79,12 +80,13 @@ const PieChart = ({ results }) => {
         setCurr(i.id + " " + counter);
     };
 
+    //creates movement in pie chart based on what area the user clicked 
     useEffect(() => {
         if (results.length !== 0 && data.length !== 0) {
             var current = currTable.split(" ");
             var prev = prevTable.split(" ");
-
             var res = (sliceValue).split(",");
+            var text;
 
                 var startAngle = parseFloat(res[0]);
                 var endAngle = parseFloat(res[1]);
@@ -94,13 +96,15 @@ const PieChart = ({ results }) => {
                 
                 if (res[2] === "at_risk") {
                     setData(data[0].array);
+                    text = "% at-risk tweets: " + res[3];
 
                 } else {
                     setData(data[1].array);
+                    text = "% low-risk tweets: " + res[3];
                 }
  
                 d3.select("text.center")
-                    .text("% " + res[2] + " tweets: " + res[3])
+                    .text(text)
                     .style("font-size", 20)
                     .style("fill", "#5a56bf")
                     .attr("transform", "rotate(" + (360 - angle) + ")");

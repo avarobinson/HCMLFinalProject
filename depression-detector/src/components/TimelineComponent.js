@@ -55,7 +55,6 @@ const Timeline = ({ results, timeframe }) => {
   }
 
   useEffect(() => {
-    setPieChartData(results);
     if (results.length !== 0) {
       var piechartData = results;
       var newData = [];
@@ -70,6 +69,8 @@ const Timeline = ({ results, timeframe }) => {
         }
       }
       setPieChartData(newData);
+    }else{
+      setPieChartData(results);
     }
   }, [startDate, endDate, results])
 

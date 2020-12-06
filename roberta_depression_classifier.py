@@ -4,8 +4,8 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import f1_score, roc_auc_score, accuracy_score
 from transformers import RobertaTokenizer, RobertaForSequenceClassification, Trainer, TrainingArguments
 import torch
-# import wandb
-# wandb.login()
+import wandb
+wandb.login()
 import numpy as np
 import re
 import nltk
@@ -49,8 +49,9 @@ def read_csv_split(split_dir):
     df["tweet"] = df["tweet"].str.lower()
     df['tweet'] = df['tweet'].apply(lambda x: re.split('https:\/\/.*', str(x))[0])
     df['tweet'] = df['tweet'].apply(lambda x: re.split('http:\/\/.*', str(x))[0])
-    #TODO: add in script to remove tags 
-    
+    df['tweet'] = df['tweet'].str.replace('#', '')
+    df['tweet'] = df['tweet'].apply(lambda x: ' '.join([word for word in x.split() if 'http' not in word and '@' not in word and '<' not in word]))
+
     texts = []
     labels = []
     # this may change slightly depending on what the dataset looks like
@@ -81,7 +82,7 @@ def encode_data(train=True):
         val_dataset = DepressionDataset(val_encodings, val_labels)
         test_dataset = DepressionDataset(test_encodings, test_labels)
 
-        tokenizer.save_pretrained('./roberta_v2_3_self')
+        tokenizer.save_pretrained('./roberta_v3')
 
         return train_dataset, val_dataset, test_dataset
     
@@ -93,14 +94,14 @@ def encode_data(train=True):
 
 def train_model(train_dataset, val_dataset, test_dataset): 
     training_args = TrainingArguments(
-        output_dir='./results_v2_3_self',         # output directory  
+        output_dir='./results_v3',         # output directory  
         evaluate_during_training=True,
         num_train_epochs=5,              # total number of training epochs
         per_device_train_batch_size=8,  # batch size per device during training
         per_device_eval_batch_size=32,   # batch size for evaluation
         warmup_steps=10,                # number of warmup steps for learning rate scheduler
         weight_decay=0.01,               # strength of weight decay
-        logging_dir='./logs_v2_3_self',            # directory for storing logs
+        logging_dir='./logs_v3',            # directory for storing logs
         logging_steps=15,
     )
 
@@ -117,11 +118,11 @@ def train_model(train_dataset, val_dataset, test_dataset):
     trainer.train()
     trainer.evaluate(test_dataset)
 
-    model.save_pretrained('./roberta_v2_3_self')
+    model.save_pretrained('./roberta_v3')
 
 def quick_test(tweet):
-    tokenizer = RobertaTokenizer.from_pretrained('./roberta_v2_3')
-    model = RobertaForSequenceClassification.from_pretrained('./roberta_v2_3')
+    tokenizer = RobertaTokenizer.from_pretrained('./roberta_v3')
+    model = RobertaForSequenceClassification.from_pretrained('./roberta_v3')
     inputs = tokenizer(tweet, return_tensors="pt")
     model.eval()
     output = model(inputs['input_ids'], inputs['attention_mask'], labels=None)

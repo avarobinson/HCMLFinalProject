@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import * as d3 from "d3";
-import Table2 from './TableComponent2';
+import TweetTable from './TweetTableComponent';
 import '../App.css';
 
 
@@ -236,7 +236,7 @@ const PieChart = ({ results }) => {
 
     return (<div className="visualization" >
         <div className={tableData.length !== 0 ? "fadeIn" : "fadeOut"} >
-            <Table2 data={tableData}
+            <TweetTable data={tableData}
                 columns={columns} />
         </div>
         <div className="test">

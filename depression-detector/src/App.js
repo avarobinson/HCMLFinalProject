@@ -87,9 +87,11 @@ class App extends Component {
       <Container>
         <div>
           <h2 className="title">Detecting Depression via Twitter</h2>
+        
         </div>
         <div className="content">
-          <Form>
+        <p className= "caption"> note: this analysis is only based on the language you use on twitter, and is by no means a fully holistic assessment.</p>
+          <Form className = "userForm">
             <Row>
               <Col>
                 <Form.Group>
@@ -119,12 +121,12 @@ class App extends Component {
 
           <Row>
             <Col>
-              <Button block onClick={this.sendData} disabled={!this.state.formValid}>
+              <Button className = "button" block onClick={this.sendData} disabled={!this.state.formValid}>
                 Predict
                     </Button>
             </Col>
             <Col>
-              <Button block onClick={this.resetData}  >
+              <Button className = "button" block onClick={this.resetData}  >
                 Reset
                   </Button>
             </Col>

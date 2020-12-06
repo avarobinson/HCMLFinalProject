@@ -18,7 +18,7 @@ const useStyles = makeStyles({
   },
 });
 
-const Table2 = ({ data, columns }) => {
+const TweetTable = ({ data, columns }) => {
 
   //handles filter in search bar 
   const [filterInput, setFilterInput] = useState("");
@@ -84,4 +84,4 @@ const Table2 = ({ data, columns }) => {
   );
 };
 
-export default Table2;
+export default TweetTable;

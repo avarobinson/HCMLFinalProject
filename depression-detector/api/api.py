@@ -179,11 +179,25 @@ def predict_tweet(tweet, model, tokenizer):
     "Output: 0 or 1"
 
 
-    print('predicting single tweet', tweet)
+    # print('predicting single tweet', tweet)
+    # inputs = tokenizer(tweet, return_tensors="pt")
+    # model.eval()
+    # output = model(inputs['input_ids'], inputs['attention_mask'], labels=None)
+    # output = torch.argmax(output[0])
+    # # print("tweet: ", tweet)
+    # # print("prediction: ", output.item())
+    # return output.item()
+
     inputs = tokenizer(tweet, return_tensors="pt")
     model.eval()
     output = model(inputs['input_ids'], inputs['attention_mask'], labels=None)
-    output = torch.argmax(output[0])
-    # print("tweet: ", tweet)
-    # print("prediction: ", output.item())
+    sigmoid = torch.nn.Sigmoid()
+    softmax = torch.nn.Softmax(dim=0)
+    output = softmax(sigmoid(output[0].squeeze()))
+    output_class = torch.argmax(output)
+    output = torch.max(output)
+    if output_class == 0:
+        output = 1 - output 
+    print("tweet: ", tweet)
+    print("prediction: ", output.item())
     return output.item()

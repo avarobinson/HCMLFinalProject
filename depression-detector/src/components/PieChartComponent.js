@@ -49,9 +49,9 @@ const PieChart = ({ results }) => {
         var i;
         for (i = 0; i < results.length; i++) {
             if (results[i].risk <= 0.5) { //checks risk assigned and divides given tweets into risk or not-risk groups
-                noRiskTweets.push({ tweet: results[i].tweet, date: results[i].date, time: results[i].time, risk: results[i].risk });
+                noRiskTweets.push({ tweet: results[i].tweet, date: results[i].date, time: results[i].time, risk: results[i].risk.toFixed(2) });
             } else {
-                riskTweets.push({ tweet: results[i].tweet, date: results[i].date, time: results[i].time, risk: results[i].risk });
+                riskTweets.push({ tweet: results[i].tweet, date: results[i].date, time: results[i].time, risk: results[i].risk.toFixed(2) });
             }
         }
         var risk = ((riskTweets.length * 100) / results.length).toFixed(2);

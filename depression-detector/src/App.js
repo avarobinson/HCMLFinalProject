@@ -1,9 +1,10 @@
 import React, { Component } from 'react';
 import './App.css';
-import { Form, Col, Container, Row, Button, InputGroup } from 'react-bootstrap';
+import { Form, Col, Container, Row, Button, InputGroup, Spinner } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import "./index.css";
 import Timeline from './components/TimelineComponent';
+
 
 class App extends Component {
   constructor(props) {
@@ -11,6 +12,7 @@ class App extends Component {
 
     this.state = {
       formValid: false,
+      loading: false,
       userPercentage: "",
       resultTable: [],
       formData: {
@@ -46,7 +48,7 @@ class App extends Component {
       formData: {
         username: '',
         timeframe: 'pastweek',
-      }, userPercentage: "", resultTable: [], errorMessage: ""
+      }, userPercentage: "", resultTable: [], errorMessage: "", loading: false
     });
   }
 
@@ -54,7 +56,7 @@ class App extends Component {
   //sends data to flask api as a post request when user hits the predict button
   sendData = () => {
     const formData = this.state.formData;
-    this.setState({ errorMessage: "" });
+    this.setState({ loading: true, errorMessage: "" });
     fetch('/api/v1', {
       headers: {
         'Accept': 'application/json',
@@ -65,10 +67,10 @@ class App extends Component {
     }
     ).then(res => res.json()).then(data => {
       //updates percentage & breakdown table 
-      this.setState({ userPercentage: data.percentage, resultTable: data.table });
+      this.setState({ loading: false, userPercentage: data.percentage, resultTable: data.table });
     }).catch((error) => {
       //notifies user that they submitted an invalid twitter handle 
-      this.setState({ errorMessage: error.message })
+      this.setState({ loading: false, errorMessage: error.message })
     });
 
   };
@@ -87,7 +89,6 @@ class App extends Component {
       <Container>
         <div>
           <h2 className="title">Detecting Depression via Twitter</h2>
-        
         </div>
         <div className="content">
         <p className= "caption"> note: this analysis is only based on the language you use on twitter, and is by no means a fully holistic assessment.</p>
@@ -132,10 +133,16 @@ class App extends Component {
             </Col>
           </Row>
 
+          {this.state.loading ? <div className="loading"> 
+            <Spinner animation="border" variant="secondary" /> 
+            <p> Loading... </p>
+          </div> : null}
+
           <div className="text">
-            {this.state.errorMessage ? <p> Sorry, this twitter handle is invalid. Please enter a different twitter handle. </p> : userPercentage == "" ? null : (userPercentage == "-1" ? <p> Sorry, no tweets were found during this timeframe. Please select a different timeframe or twitter handle. </p> : null)}
+            {this.state.errorMessage ? <p> Sorry, this twitter handle is invalid. Please enter a different twitter handle. </p> : userPercentage === "" ? null : userPercentage === "-1" ? <p> Sorry, no tweets were found during this timeframe. Please select a different timeframe or twitter handle. </p> : null}
           </div>
-          {userPercentage && userPercentage != "-1" ? 
+
+          {(userPercentage !== "" && userPercentage !== "-1") ? 
             <div className="percentage"> 
               <h4> {this.state.formData.username}'s risk percentage: {userPercentage.toFixed(2)} %</h4> 
               <p> If you are having thoughts of suicide and need support right now, there are people who care about your life and will provide you with resources that can help. Call the toll-free National Suicide Prevention Lifeline at <b>1-800-273-TALK</b> (8255) to be connected with a trained counselor at a crisis center anytime. </p>
@@ -143,7 +150,7 @@ class App extends Component {
                 <a href="https://www.everydayhealth.com/depression/guide/resources/" target="_blank"> everydayhealth.com </a> 
               </p>
             </div>
-            : null}
+            : console.log(userPercentage)}
         </div>
         <Timeline results={resultTable} timeframe={this.state.formData["timeframe"]} />
 

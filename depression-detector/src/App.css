@@ -63,7 +63,13 @@ input {
 }
 
 .percentage {
-    margin-top: 15px;
+    margin-top: 25px;
+    text-align: center;
+}
+
+.loading {
+    text-align: center;
+    padding-top: 20px;
 }
 
 .assessmentBreakdown {

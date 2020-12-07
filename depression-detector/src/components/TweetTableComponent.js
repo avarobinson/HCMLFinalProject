@@ -1,4 +1,3 @@
-import { makeStyles } from '@material-ui/core/styles';
 import Paper from '@material-ui/core/Paper';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
@@ -9,14 +8,6 @@ import TableRow from '@material-ui/core/TableRow';
 import React, { useEffect, useState } from "react";
 import "../App.css";
 
-const useStyles = makeStyles({
-  root: {
-    width: 600,
-  },
-  container: {
-    maxHeight: 440,
-  },
-});
 
 const TweetTable = ({ data, columns }) => {
 
@@ -38,21 +29,23 @@ const TweetTable = ({ data, columns }) => {
     }
   }, [filterInput, data]);
 
-  const classes = useStyles();
+
   return (
     <div>
       <input
+      className = "searchBar"
         value={filterInput}
         onChange={handleFilterChange}
         placeholder={"Search Tweet"}
       />
-      <Paper className={classes.root}>
-        <TableContainer className={classes.container}>
+      <Paper className = "tweetTable">
+        <TableContainer className= "tableContainer">
           <Table stickyHeader aria-label="sticky table">
             <TableHead>
-              <TableRow>
+              <TableRow >
                 {columns.map((column) => (
                   <TableCell
+                  className = "tableHeader"
                     key={column.id}
                     style={{ minWidth: column.minWidth }}
                   >
@@ -61,14 +54,14 @@ const TweetTable = ({ data, columns }) => {
                 ))}
               </TableRow>
             </TableHead>
-            <TableBody>
+            <TableBody className = "tableBody">
               {tableData.map((row) => {
                 return (
-                  <TableRow hover role="checkbox" tabIndex={-1} key={row.time}>
+                  <TableRow className = "cell" hover role="checkbox" tabIndex={-1} key={row.time}>
                     {columns.map((column) => {
                       const value = row[column.id];
                       return (
-                        <TableCell key={column.id} align={column.align}>
+                        <TableCell className = "tableRow" key={column.id} id={column.id}>
                           {value}
                         </TableCell>
                       );

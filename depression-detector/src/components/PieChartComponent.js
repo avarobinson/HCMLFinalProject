@@ -45,8 +45,6 @@ const PieChart = ({ results }) => {
         }
         var riskTweets = [];
         var noRiskTweets = [];
-        var riskPercent = 0;
-        var noRiskPercent = 0;
 
         var i;
         for (i = 0; i < results.length; i++) {
@@ -180,6 +178,12 @@ const PieChart = ({ results }) => {
             .transition()
             .duration(1000)
             .attr("transform", "rotate(" + (0) + ")");
+        
+            d3.select("g.chart")
+                    .transition()
+                    .duration(1000)
+                    .attr("transform", "translate(" + (size / 1.2) + " " + (size / 3) + ")");
+
 
         const groupWithUpdate = groupWithData
             .enter()
@@ -228,10 +232,10 @@ const PieChart = ({ results }) => {
     }, [data]);
 
     const columns = [
-        {id: 'date', label:"Date", minWidth: 120},
-        {id: 'time', label: "Time",  minWidth: 50},
+        {id: 'date', label:"Date", minWidth: 50},
+        {id: 'time', label: "Time",  minWidth: 30},
         {id: 'tweet', label: "Tweet",minWidth: 170, },
-        {id: 'risk', label: "Risk", minWidth: 20,}
+        {id: 'risk', label: "Risk", minWidth: 10,}
     ]
 
     return (<div className="visualization" >

@@ -93,7 +93,7 @@ class App extends Component {
           <h2 className="title">Detecting Depression via Twitter</h2>
         </div>
         <div className="content">
-        <p className= "caption"> Note: As this analysis is only based on the language you use on Twitter, it is not a holistic assessment of your mental wellbeing.</p>
+        <p className= "caption"> Note: This analysis is based on the language you use on Twitter. It is not a holistic assessment of your mental wellbeing and should not be used as a diagnosis or replacement for professional help.</p>
           <Form className = "userForm">
             <Row>
               <Col>
@@ -146,7 +146,7 @@ class App extends Component {
 
           {(userPercentage !== "" && userPercentage !== "-1") ? 
             <div className="percentage"> 
-              <h4> {use}'s risk percentage: {userPercentage.toFixed(2)} %</h4> 
+              <h4> @{use}'s risk of depression: {userPercentage.toFixed(2)} %</h4> 
               <p> If you are having thoughts of suicide and need support right now, there are people who care about your life and will provide you with resources that can help. Call the toll-free National Suicide Prevention Lifeline at <b>1-800-273-TALK</b> (8255) to be connected with a trained counselor at a crisis center anytime. </p>
               <p> For more resources to help you manage depression and take care of your mental health, visit 
                 <a href="https://www.everydayhealth.com/depression/guide/resources/" target="_blank"> everydayhealth.com </a> 

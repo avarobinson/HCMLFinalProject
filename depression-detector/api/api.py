@@ -142,8 +142,8 @@ def predict(modelData, originalData):
     "Inputs: modelData - list of strings (pure tweets), origonalData - data scraped from twint"
     "Outputs: json of tweets, results, risk percentage, results table"\
     
-    tokenizer = RobertaTokenizer.from_pretrained('../../roberta_v2_3')
-    model = RobertaForSequenceClassification.from_pretrained('../../roberta_v2_3')
+    tokenizer = RobertaTokenizer.from_pretrained('../../roberta_v3')
+    model = RobertaForSequenceClassification.from_pretrained('../../roberta_v3')
 
     predictions = []
     for tweet in modelData:

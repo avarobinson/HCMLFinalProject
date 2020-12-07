@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import '../App.css';
-import { AreaChart, Area, Legend, CartesianGrid, XAxis, YAxis, Tooltip } from 'recharts';
+import { AreaChart, Area, Legend, CartesianGrid, XAxis, YAxis, Tooltip, Text } from 'recharts';
 import PieChart from './PieChartComponent';
 import { Form, Col, Row} from 'react-bootstrap';
 
@@ -29,6 +29,18 @@ function CustomTooltip({ payload, active }) {
   }
   return null;
 }
+
+const AxisLabel = ({ axisType, x, y, width, height, stroke, children }) => {
+  const isVert = axisType === 'yAxis';
+  const cx = isVert ? x : x + (width / 2);
+  const cy = isVert ? (height / 2) + y : y + height + 10;
+  const rot = isVert ? `270 ${cx} ${cy}` : 0;
+  return (
+    <text x={cx} y={cy} transform={`rotate(${rot})`} textAnchor="middle" stroke={stroke}>
+      {children}
+    </text>
+  );
+};
 
 const Timeline = ({ results, timeframe }) => {
 
@@ -261,26 +273,33 @@ const Timeline = ({ results, timeframe }) => {
   //data used to create the line chart 
   var data = reorganizeData(results);
 
-  function setTimeframe(index) {
-    var timeframe = data[index].timeframe;
-    var startDate = timeframe[0];
-    var endDate = timeframe[timeframe.length - 1];
-    setStart(startDate);
-    setEnd(endDate);
+  function setTimeframe(e) {
+    try{
+      var index = e.activeTooltipIndex
+      // catching an error of user clicking on graph with no timeframe selected
+      var timeframe = data[index].timeframe;
+      var startDate = timeframe[0];
+      var endDate = timeframe[timeframe.length - 1];
+      setStart(startDate);
+      setEnd(endDate);
+    }
+    catch{
+      // dont reset dates of pie chart 
+    }
   }
 
   return (
     <div>
       <div className="linechart">
         <p className="graph-title"> Risk of Depression Over Time</p>
-        <p className="description"> click on the data points for more details via the pie chart</p>
-        <AreaChart onMouseDown={results.length === 0 ? null : (e) => setTimeframe(e.activeTooltipIndex)} width={1000} height={500} data={data} margin={{ top: 0, right: 20, bottom: 5, left: 0 }}>
+        <p className="description"> click on data points to change the timeframe shown in categorized tweets below</p>
+        <AreaChart onMouseDown={results.length === 0 ? null : (e) => setTimeframe(e)} width={1000} height={500} data={data} margin={{ top: 0, right: 20, bottom: 5, left: 0 }}>
           <Area name="continuous risk percentage" connectNulls type="monotone" dataKey="contPercent" stroke="#247893" fill="#247893" fillOpacity={0.4} activeDot={{ r: 8 }} />
           <Area name="current timeframe risk percentage" connectNulls type="monotone" dataKey="percent" stroke="#8884d8" fill="#8884d8" fillOpacity={0.4} activeDot={{ r: 8 }} />
 
           <CartesianGrid stroke="#ccc" strokeDasharray="5 5" />
           <XAxis dataKey="date"/>
-          <YAxis dataKey="percent" domain={[0, 100]} />
+          <YAxis dataKey="percent" domain={[0, 100]} label={<Text fill="#808080" dx={35} dy={250} angle={-90}>% Risk</Text>}/>
           {data.length !== 0 ? <Tooltip content={<CustomTooltip />} /> : null}
           <Legend />
         </AreaChart>

@@ -78,6 +78,15 @@ const PieChart = ({ results }) => {
         setCurr(i.id + " " + counter);
     };
 
+    function arcColor(label){
+        if(label == "at_risk"){
+            return "#779ecb"
+        }
+        else{
+            return "#f6ed95"
+        }
+    };
+
     //creates movement in pie chart based on what area the user clicked 
     useEffect(() => {
         if (results.length !== 0 && data.length !== 0) {
@@ -115,13 +124,13 @@ const PieChart = ({ results }) => {
                 d3.selectAll("path.arc")
                     .transition()
                     .duration(1000)
-                    .style("fill", "#8884D7")
+                    .style("fill", "#ccc")
                     .attr("d", createArc)
 
                 d3.select("#" + res[2])
                     .transition()
                     .duration(1000)
-                    .style("fill", "#5a56bf")
+                    .style("fill", (d) => arcColor(d.data.label))
                     .attr("d", arcOver)
 
                 d3.select("g.square")
@@ -143,11 +152,14 @@ const PieChart = ({ results }) => {
                     .transition()
                     .duration(1000)
                     .attr("transform", "translate(" + (size / 1.2) + " " + (size / 3) + ")");
-
+                
+                d3.selectAll("path.arc")
+                    .style("fill", (d) => arcColor(d.data.label));
+                
                 d3.select("#" + res[2])
                     .transition()
                     .duration(1000)
-                    .style("fill", "#8884D7")
+                    .style("fill", (d) => arcColor(d.data.label))
                     .attr("d", createArc);
 
                 d3.select("g.square")
@@ -204,12 +216,21 @@ const PieChart = ({ results }) => {
             return (t) => createArc(interpolator(t));
         };
 
+        function arcColor(label){
+            if(label == "at_risk"){
+                return "#779ecb"
+            }
+            else{
+                return "#f6ed95"
+            }
+        };
+
         path
             .transition().duration(1000)
             .attr("class", "arc")
             .attr("id", (d) => d.data.label)
             .attr("data-value", (d) => [d.startAngle, d.endAngle, d.data.label, d.data.value])
-            .style("fill", "#8884d8")
+            .style("fill", (d) => arcColor(d.data.label))
             .attrTween("d", arcTween)
      
         const center = d3.select("g.square")

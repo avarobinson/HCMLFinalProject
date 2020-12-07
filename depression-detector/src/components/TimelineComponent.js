@@ -120,11 +120,11 @@ const Timeline = ({ results, timeframe }) => {
 
     var i
     for (i = startSeason; i <= (startSeason + numSeasons); i++) {
-      timeline_data.push({ date: season[i % 4] + " " + startYear, risk: 0, total: 0, contRisk: 0, contTotal: 0, contPercent: 0, percent: 0, timeframe: [] });
-      template.push(season[i % 4] + " " + startYear);
       if (i % 4 === 0) {
         startYear++;
       }
+      timeline_data.push({ date: season[i % 4] + " " + startYear, risk: 0, total: 0, contRisk: 0, contTotal: 0, contPercent: 0, percent: 0, timeframe: [] });
+      template.push(season[i % 4] + " " + startYear);
     }
     return [timeline_data, template, "season"];
   }

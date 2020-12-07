@@ -124,12 +124,12 @@ class App extends Component {
 
           <Row>
             <Col>
-              <Button className = "button" block onClick={this.sendData} disabled={!this.state.formValid}>
+              <Button className = "button" block onClick={this.sendData} disabled={!this.state.formValid || this.state.loading}>
                 Predict
                     </Button>
             </Col>
             <Col>
-              <Button className = "button" block onClick={this.resetData}  >
+              <Button className = "button" block onClick={this.resetData} disabled={this.state.loading} >
                 Reset
                   </Button>
             </Col>
@@ -141,10 +141,10 @@ class App extends Component {
           </div> : null}
 
           <div className="text">
-            {this.state.errorMessage ? <p> Sorry, this twitter handle is invalid. Please enter a different twitter handle. </p> : userPercentage === "" ? null : userPercentage === "-1" ? <p> Sorry, no tweets were found during this timeframe. Please select a different timeframe or twitter handle. </p> : null}
+            {this.state.errorMessage ? <p> Sorry, this twitter handle is invalid. Please enter a different twitter handle. </p> : (userPercentage === "" ? null : (userPercentage == "-1" ? <p> Sorry, no tweets were found during this timeframe. Please select a different timeframe or twitter handle. </p> : null))}
           </div>
 
-          {(userPercentage !== "" && userPercentage !== "-1") ? 
+          {(userPercentage !== "" && userPercentage != "-1") ? 
             <div className="percentage"> 
               <h4> @{use}'s risk of depression: {userPercentage.toFixed(2)} %</h4> 
               <p> If you are having thoughts of suicide and need support right now, there are people who care about your life and will provide you with resources that can help. Call the toll-free National Suicide Prevention Lifeline at <b>1-800-273-TALK</b> (8255) to be connected with a trained counselor at a crisis center anytime. </p>

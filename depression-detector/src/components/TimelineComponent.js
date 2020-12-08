@@ -299,7 +299,7 @@ const Timeline = ({ results, timeframe }) => {
 
           <CartesianGrid stroke="#ccc" strokeDasharray="5 5" />
           <XAxis dataKey="date"/>
-          <YAxis dataKey="percent" domain={[0, 100]} label={<Text fill="#808080" dx={35} dy={250} angle={-90}>% Risk</Text>}/>
+          <YAxis dataKey="percent" domain={[0, 100]} label={<Text fill="#808080" dx={20} dy={250} angle={-90}>% Risk</Text>}/>
           {data.length !== 0 ? <Tooltip content={<CustomTooltip />} /> : null}
           <Legend />
         </AreaChart>

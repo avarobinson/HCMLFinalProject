@@ -30,7 +30,7 @@ To start frontend:
   NOTE: if you are having issues with Yarn, please try - 
     MAC: brew install 
     PC: choco install yarn
-  3. open up browser window and paste http://localhost:3000. 
+  3. open up browser window (please use Chrome) and paste http://localhost:3000. 
   
 To start backend: 
   1. switch to a second terminal and navigate to depression-detector

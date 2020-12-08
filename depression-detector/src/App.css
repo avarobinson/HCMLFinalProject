@@ -225,3 +225,35 @@ input {
     white-space: pre-wrap !important;
     max-width: 300px !important;
 }
+
+.legendDepressed{
+    color: #779ecb;
+    text-align: center;
+    display: inline-block;
+    margin-right: 10px;
+}
+
+.legendNot{
+    color: #f6ed95;
+    text-align: center;
+    display: inline-block;
+    margin-right: 10px;
+}
+
+.legendDepressedText{
+    /* color: #779ecb; */
+    text-align: center;
+    display: inline-block;
+    margin-right: 40px;
+}
+
+.legendNotText{
+    /* color: #f6ed95; */
+    text-align: center;
+    display: inline-block;
+    /* margin-right: 10px; */
+}
+
+.pieLegend{
+    text-align: center;
+}

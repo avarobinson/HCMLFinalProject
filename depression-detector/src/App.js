@@ -144,7 +144,7 @@ class App extends Component {
             {this.state.errorMessage == "Failed to fetch" ?
               <p> Sorry, too many tweets in the timeframe. Please enter a shorter timeframe or different twitter handle. </p>
               : this.state.errorMessage ?
-                <p> Sorry, this twitter handle is invalid. Please enter a different twitter handle. {this.state.errorMessage} </p> 
+                <p> Sorry, this twitter handle is invalid. Please enter a different twitter handle. </p> 
                 : (userPercentage === "" ? 
                   null 
                   : (userPercentage == "-1" ? 

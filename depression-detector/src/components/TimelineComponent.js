@@ -310,6 +310,7 @@ const Timeline = ({ results, timeframe }) => {
           <p className="graph-title"> Categorized Tweets </p> : <p className="graph-title"> Categorized Tweets Between {startDate} and {endDate}</p>}
         <p className="description"> view the categorized tweets from a specific timeframe of your choosing</p>
         {(results.length === 0) ? null :
+          <div>
           <Form>
             <Row>
               <Col></Col>
@@ -323,7 +324,14 @@ const Timeline = ({ results, timeframe }) => {
               <Col></Col>
             </Row>
           </Form>
+        </div>
         }
+        <p className="pieLegend">
+          <Text className="legendDepressed">{'\u2B24'}</Text>
+          <div className="legendDepressedText">at-risk tweets </div>
+          <Text className="legendNot">{'\u2B24'}</Text>
+          <div className="legendNotText"> low-risk tweets</div>
+        </p>
         <PieChart results={pieChartData} />
       </div>
     </div>

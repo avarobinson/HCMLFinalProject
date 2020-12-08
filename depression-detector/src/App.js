@@ -69,7 +69,7 @@ class App extends Component {
       //updates percentage & breakdown table 
       this.setState({ loading: false, userPercentage: data.percentage, resultTable: data.table });
     }).catch((error) => {
-      //notifies user that they submitted an invalid twitter handle 
+      //notifies user that they submitted an invalid twitter handle or tried too many tweets
       this.setState({ loading: false, errorMessage: error.message })
     });
     
@@ -141,7 +141,15 @@ class App extends Component {
           </div> : null}
 
           <div className="text">
-            {this.state.errorMessage ? <p> Sorry, this twitter handle is invalid. Please enter a different twitter handle. </p> : (userPercentage === "" ? null : (userPercentage == "-1" ? <p> Sorry, no tweets were found during this timeframe. Please select a different timeframe or twitter handle. </p> : null))}
+            {this.state.errorMessage == "Failed to fetch" ?
+              <p> Sorry, too many tweets in the timeframe. Please enter a shorter timeframe or different twitter handle. </p>
+              : this.state.errorMessage ?
+                <p> Sorry, this twitter handle is invalid. Please enter a different twitter handle. {this.state.errorMessage} </p> 
+                : (userPercentage === "" ? 
+                  null 
+                  : (userPercentage == "-1" ? 
+                    <p> Sorry, no tweets were found during this timeframe. Please select a different timeframe or twitter handle. </p> 
+                    : null))}
           </div>
 
           {(userPercentage !== "" && userPercentage != "-1") ? 

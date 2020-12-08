@@ -110,7 +110,7 @@ class App extends Component {
               <Col>
 
                 <Form.Group>
-                  <Form.Label>Timeframe</Form.Label>
+                  <Form.Label>Timeframe (Note: may change if there are too many tweets in timeframe) </Form.Label>
                   <Form.Control className = "formInput" as="select" value={formData.timeframe} name="timeframe" onChange={this.handleChange}>
                     <option>past week </option>
                     <option>past month</option>

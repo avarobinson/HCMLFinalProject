@@ -9,7 +9,8 @@ Clone this repo
     - HomeBrew: $ brew install git-lfs
     - MacPorts: $ port install git-lfs
     (https://docs.github.com/en/free-pro-team@latest/github/managing-large-files/installing-git-large-file-storage)
-  2. pull model: $ git lfs pull
+  2. $ git lfs install 
+  3. pull model: $ git lfs pull
 
 To create and start virtual environment: 
   1. $ cd depression-detector

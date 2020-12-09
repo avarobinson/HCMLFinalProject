@@ -283,7 +283,7 @@ const Timeline = ({ results, timeframe }) => {
       setStart(startDate);
       setEnd(endDate);
     }
-    catch{
+    catch(error){
       // dont reset dates of pie chart 
     }
   }

@@ -236,8 +236,13 @@ const Timeline = ({ results, timeframe }) => {
         }
         index = template.indexOf(value);
         continuous += results[i].risk;
-
-        data[index].total++;
+        
+        try{
+          data[index].total++;
+        }
+        catch(error){
+          // do nothing instead
+        }
         data[index].timeframe.push(results[i].date);
         data[index].contRisk = continuous;
         data[index].contTotal = i + 1;

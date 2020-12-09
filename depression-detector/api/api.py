@@ -30,28 +30,17 @@ def scrape_and_predict():
     # this acts as the main function for a POST request
     formData = request.json
     # 1. scrape data 
-    stime2 = time.time()
     tweets = user_data(formData)
     # tweets = list(itertools.repeat(tweets[0], 1200)) # 20 copies of "a"
-    ftime2 = time.time()
-    print('scraping time', ftime2-stime2)
     # print('scraped tweets', tweets)
     # 2. clean data 
-    stime3 = time.time()
     clean_tweets, original_tweets = clean_and_format_data(tweets)
-    ftime3 = time.time()
-    print('cleaning time', ftime3 - stime3)
     # original tweets will be a list of lists where the sublist has a single tweet object
     # 3. run model
-    stime4 = time.time()
     predictions = predict(clean_tweets, original_tweets, start_time)
-    ftime4 = time.time()
-    print('predict time', ftime4 - stime4)
     # print('done predicting')
     end_time = time.time()
     total = end_time - start_time
-    print('NUMBER TWEETS', len(tweets))
-    print('TIME', total)
     return predictions
 
 

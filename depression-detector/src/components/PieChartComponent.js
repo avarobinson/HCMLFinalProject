@@ -2,8 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import * as d3 from "d3";
 import TweetTable from './TweetTableComponent';
 import '../App.css';
-import { AreaChart, Area, Legend, CartesianGrid, XAxis, YAxis, Tooltip, Text } from 'recharts';
-
+// import { AreaChart, Area, Legend, CartesianGrid, XAxis, YAxis, Tooltip, Text } from 'recharts';
 
 
 const PieChart = ({ results }) => {
